@@ -12,11 +12,12 @@ def creer_quotient(graph):
     graph.applyAlgorithm("Quotient Clustering", params)
 
     
-def dessiner_communautes_quotient(gr):
-    gr['viewColor'].setAllNodeValue(tlp.Color.BabyBlue)
-    gr['viewShape'].setAllNodeValue(tlp.NodeShape.Billboard)
-    gr['viewSize'].setAllNodeValue((3,3,1))    
-
+def dessiner_communautes_quotient(gr,pn):
+    for n in gr.getNodes():
+        name=gr['viewLabel'][n]
+        gr['viewSize'][n].setNodeValue=len(pn[name])
+        gr['viewColor'][n]=tlp.Color.BabyBlue
+        gr['viewShape'][n]=tlp.NodeShape.Billboard
 
 def main(graph):
     wg=graph.getSubGraph("Workingraph")
@@ -77,6 +78,6 @@ def main(graph):
 
     creer_quotient(wg)
     quotient = graph.getSubGraph("quotient of Workingraph")
-    dessiner_communautes_quotient(quotient)
+    dessiner_communautes_quotient(quotient,path_node)
 
 
