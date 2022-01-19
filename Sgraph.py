@@ -6,6 +6,9 @@ def creer_quotient(graph):
     params["oriented"] = False
     params["layout clusters"] = True 
     params["edge cardinality"] = True
+    
+    # Permet de renomer les meta noeuds
+    params["use name of subgraph"] = True
     graph.applyAlgorithm("Quotient Clustering", params)
 
     
@@ -74,7 +77,6 @@ def main(graph):
 
     creer_quotient(wg)
     quotient = graph.getSubGraph("quotient of Workingraph")
-    
     dessiner_communautes_quotient(quotient)
 
 
