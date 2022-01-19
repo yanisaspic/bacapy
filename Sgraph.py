@@ -8,15 +8,11 @@ def creer_quotient(graph):
     params["edge cardinality"] = True
     graph.applyAlgorithm("Quotient Clustering", params)
 
-
+    
 def dessiner_communautes_quotient(gr):
-    for meta_node in gr.getNodes() :
-        gr['viewColor'][meta_node] = tlp.Color.BabyBlue
-        gr['viewShape'][meta_node] = tlp.NodeShape.Billboard
-        gr['viewSize'][meta_node] = (3,3,1)
-        
-    for meta_edge in gr.getEdges() :     
-        gr['viewColor'][meta_edge] = tlp.Color.Black
+    gr['viewColor'].setAllNodeValue(tlp.Color.BabyBlue)
+    gr['viewShape'].setAllNodeValue(tlp.NodeShape.Billboard)
+    gr['viewSize'].setAllNodeValue((3,3,1))    
 
 
 def main(graph):
