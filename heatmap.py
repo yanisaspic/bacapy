@@ -1,27 +1,10 @@
 import pandas as pd
-from scipy.stats import zscore
-import math
-from statistics import mean
+import numpy as np
 from tulip import tlp
-#from tulipgui import tlpgui
-from scipy.stats import zscore
+
 import scipy.cluster.hierarchy as spc
+from handle_files import *
 
-"""
-V A R I A B L E S
-"""
-genesFilename = "mapGeneLocus.csv"
-levelsFilename = "ecoliK12_levels.csv"
-ratiosFilename = "ecoliK12_ratio.csv"
-
-"""
-F U N C T I O N S
-"""
-def loadDataFiles(genesFilename="mapGeneLocus.csv",levelsFilename="ecoliK12_levels.csv",ratiosFilename="ecoliK12_ratio.csv" ):
-    genes = pd.read_csv(genesFilename, sep=';')
-    levels = pd.read_csv(levelsFilename, sep=';')    
-    ratios = pd.read_csv(ratiosFilename, sep=';')
-    return genes, levels, ratios
 
 def get_nodes(gr, lignes=2, colonnes=2, nodes = {}):
     """
@@ -57,17 +40,19 @@ def grid_map(nodes, lignes, colonnes, graph  ):
     """
     graph['viewShape'].setAllNodeValue(0)
     graph['viewSize'].setAllNodeValue( (0.9 ,1 ,0) )
-    
     for i in range(colonnes):   
         for j in range(lignes):
-            if i == 0 :
-                graph['viewLayout'][nodes[j][i]] = (i-3,-j,0)
-            else :
-                graph['viewLayout'][nodes[j][i]] = (i,-j,0)
+
+            # On place les noeud de la première colonne plus à gauche : nom des lignes
+            #if i == 0 :
+             #   graph['viewLayout'][nodes[j][i]] = (i-3,-j,0)
+            #else :
+            graph['viewLayout'][nodes[j][i]] = (i,-j,0)
 
 def add_property(graph,df, nodes, property_name="expr") :
     """
-    à refaire ?
+    Ajoute une propriété (type int/double) 
+    permettant de colorer les cases de la heatmap
     
     
     Paramètres
@@ -84,34 +69,14 @@ def add_property(graph,df, nodes, property_name="expr") :
     col = 0
     while col < len(nodes[0]) :
         for row in range( len(nodes) ):
-            value = df.iloc[row,col]
-
-            if is_integer(value):
-                
-                graph["expr"][ nodes[row][col] ] = value
-            else : 
-                graph["viewLabel"][ nodes[row][col] ] = value
-
+            value = df.iloc[row,col]               
+            graph[property_name][ nodes[row][col] ] = value
         col += 1
 
-def is_integer(value):
-    """
-    Renvoit True si value est un integer
-    
-    Paramètres
-    ----------
-    value : int or str
-    
-    """
-    try :
-        int(value)
-        return True
-    except ValueError :
-        return False
 
 def color_heatmap(graph, prop, nodes):
     """
-    Colore la heatmap
+    Colore la heatmap en fonction de la propriété donnée en paramètres
     
     Paramètres
     ----------
@@ -129,18 +94,12 @@ def color_heatmap(graph, prop, nodes):
     colorScale = tlp.ColorScale([])    
     colorScale.setColorAtPos(0.0, tlp.Color.Blue)
     colorScale.setColorAtPos(0.5, tlp.Color.White)
-    colorScale.setColorAtPos(1.0, tlp.Color.Brown)
+    colorScale.setColorAtPos(1.0, tlp.Color.Red)
     params["color scale"] = colorScale
     
     graph.applyColorAlgorithm("Color Mapping", params)
-    
-    lignes = len(nodes)
-    colonnes = len(nodes[0])
-    for i in range(colonnes):   
-        for j in range(lignes):
-            if i == 0 :
-                graph['viewColor'][nodes[j][i]] = (255,255,255)
-    
+
+
 def add_scale(graph, df, prop):
     """
     Ajoute une échelle de couleur
@@ -166,32 +125,48 @@ def add_scale(graph, df, prop):
         # position du label : gauche
         graph['viewLabelPosition'][node] = 3
         
-def add_header(graph, df) :
+def add_features(graph, df, feature) :
     """
-    Ajoute les colonnes de la heatmap
+    Ajoute les nomes des colonnes ou des lignes à la heatmap
     
     Paramètres
     ----------
     graph : tlp.Graph
     df : pandas.DataFrame
+    feature : str ["header","index"] 
 
     """
-
-    colonne = 0
-    for col in df.columns[1:] :
+    
+    if feature == "header" :
+        ft = df.columns
+        
+    if feature == "index" :
+        ft = df.index
+        
+    count = 0
+    for col in ft :
         
         node = graph.addNode()
-  
-        graph['viewLayout'][node] = (colonne+1, 1, 0)
+    #    graph['viewFont'][node] = "C:/Users/Antonin Colajanni/Desktop/M2/R_BOURQUI/bacapy/OpenSans-Regular.ttf"
+        #graph['viewFont'][node] =  
         graph['viewLabel'][node] = col
-        graph['viewFontSize'][node] = 16
-        graph['viewRotation'][node] = 90
-        graph['viewLabelPosition'][node] = 4
+        graph['viewFontSize'][node] = 18
+        #graph['viewLabelPosition'][node] = 4
 
         #graph['viewLabelPosition'][node] = 1
-        graph['viewColor'][node] = (255,255,255)
+        graph['viewColor'][node] = tlp.Color.White
         
-        colonne +=1
+                  
+        if feature == "header" :
+            graph['viewLayout'][node] = (count, 1, 0)
+            graph['viewRotation'][node] = 90
+                    
+        if feature == "index" :
+            graph['viewLayout'][node] = (-3, -count, 0)
+            graph['viewSize'][node] = ( (0.9 ,4 ,0) )
+
+        count +=1
+
 
 def heatmap(graph, df, property_name) :
     """
@@ -208,32 +183,37 @@ def heatmap(graph, df, property_name) :
     lignes = df.shape[0]
     col = df.shape[1]
     nodes = get_nodes(graph, lignes, col)
-    
+    add_property(graph, df, nodes,  property_name)
     grid_map(nodes, lignes, col, graph)
     add_scale(graph, df, property_name)
-    add_property(graph, df, nodes)
     color_heatmap(graph, property_name, nodes)
-    add_header(graph, df)
+    add_features(graph, df, "header")
+    add_features(graph, df, "index")
     
 #def cluster_row():
     
-    
-    
+
+### Test
 def main(graph):
     
-    graph.clear()
+    #graph.clear()
     
-    
+
+
     genes, levels, ratios = loadDataFiles()
 
     ratio = ratios.iloc[30:130, :]
-    
     lignes = ratio.shape[0]
     col = ratio.shape[1]
+
+    
+    """
+    genes = ratio['locus']  
+    rownames = ratio.locus.to_list()
+    ratio = ratio.drop(axis=1, columns= "locus")
+    ratio.index = rownames  
     
     
-    
-    genes = ratio['locus']    
     transposed = ratio.T
     transposed.columns = genes
     transposed = transposed.drop(axis=0, index = 'locus')
@@ -241,12 +221,17 @@ def main(graph):
     corr_matrix = transposed.corr()
     
     pdist = spc.distance.pdist(corr_matrix)
-    linkage = spc.linkage(pdist, method='ward')
+    
+    linkage = spc.linkage(pdist, method='ward' )
     idx = spc.fcluster(linkage, 0.5 * pdist.max(), 'distance')
+    
     ratio['clust'] = idx
-    ratio_clust = ratio.sort_values(by=['clust'])
+    ratio_clust = ratio.sort_values(by=['clust'], )
     ratio = ratio_clust.drop(columns = 'clust', axis = 1)
     
-    heatmap(graph, ratio,  "expr")
 
-        
+    heatmap(graph, ratio,  "aaa")
+    """
+
+
+      
