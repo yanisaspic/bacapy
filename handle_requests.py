@@ -12,6 +12,7 @@ Librairie pour interagir avec la base de donnees BioCyc.
 import requests
 from xml.etree import ElementTree as ET
 import handle_graphs as hg
+from handle_reactions import getReactionIds
 import time
 
 def requestBiocyc(reactionId, list):
