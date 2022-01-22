@@ -138,7 +138,7 @@ def filterBiocycReactions(graph, notBR):
         nodeIdsToKeep.update(hg.getIdsFromNodes(neighborNodes))
     hg.deleteNodes(graph, hg.filterNodesWithIds(graph, nodeIdsToKeep, excluded = True))
 
-def mainBiocyc(graph):
+def mainBioCyc(graph):
     reactions = getReactionIds(graph)
     pathways, to_del = getPathways(reactions)
     data = getReactions(pathways)
