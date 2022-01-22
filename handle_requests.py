@@ -127,7 +127,7 @@ def filterBiocycReactions(graph, notBR):
     also deleted if they are not used by found reactions.
     
     Parameters:
-        graph (tlp.Graph): 
+        graph (tlp.Graph): Ecoli K12 substrates - reactions graph 
         notBR (list): List of reaction IDs not found on BioCyc
     
     """
@@ -137,3 +137,11 @@ def filterBiocycReactions(graph, notBR):
         neighborNodes = hg.getNeighborNodes(graph, n)
         nodeIdsToKeep.update(hg.getIdsFromNodes(neighborNodes))
     hg.deleteNodes(graph, hg.filterNodesWithIds(graph, nodeIdsToKeep, excluded = True))
+
+def mainBiocyc(graph):
+    reactions = getReactionIds(graph)
+    pathways, to_del = getPathways(reactions)
+    data = getReactions(pathways)
+    filterBiocycReactions(graph, to_del)
+    return data
+    
