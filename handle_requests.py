@@ -121,32 +121,6 @@ def getReactions(pathways):
             pass
     return data
 
-def subgraph(graph, pathway_name, data):
-    """
-    Create a Tulip subgraph of a metabolic pathway
-    from its associated reactions.
-    
-    Parameters:
-        graph (tlp.Graph): 
-        pathway_name (string): Id of a pathway
-        data (dict): String of pathway id as key and its 
-                     associated reaction list as values
-                     
-    Returns:
-
-    """
-    list_reactions = data[pathway_name]
-    id_list = graph.getStringProperty('id')
-    # name_list = graph.getStringProperty('name')
-    pathwayNodes = []
-    for n in graph.getNodes():
-        if id_list[n] in list_reactions:
-            pathwayNodes.append(n)
-            for n2 in graph.getInOutNodes(n):
-                pathwayNodes.append(n2)
-    pathwaySg = graph.inducedSubGraph(pathwayNodes)
-    pathwaySg.setName(pathway_name)
-    
 def filterBiocycReactions(graph, notBR):
     """
     Deletes all reactions not found on BioCyc. Substrates are 
