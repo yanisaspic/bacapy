@@ -9,6 +9,11 @@ Librairie pour la gestion des graphes Tulip.
 @ SIMON Arnaud
 """
 
+from tulip import tlp
+
+def getRootGraph():
+    for graph in tlp.getRootGraphs():
+        return graph    
 def newSubGraph(graph, subGraphName):
     """Cree un nouveau sous-graphe. 
     Si un graphe du meme nom existe deja, il est prealablement supprime."""
@@ -16,6 +21,13 @@ def newSubGraph(graph, subGraphName):
     if sg != None:
         graph.delAllSubGraphs(sg)
     return graph.addCloneSubGraph(subGraphName)
+def getWorkingGraph(graph, workingGraphName='working graph', originalGraphName='original graph'):
+    wg, og = newSubGraph(graph, workingGraphName), newSubGraph(graph, originalGraphName)
+    return wg
+def renameSubGraph(graph, subGraphName, subGraphNewName):
+    """Renomme un sous-graphe."""
+    sg = graph.getSubGraph(subGraphName)
+    sg.setAttribute('name', subGraphNewName)
 
 def renameLabelsWithProperty(graph, propertyName):
     """Renomme les labels des noeuds d'un graphe d'apres une propriete du graphe."""
@@ -31,13 +43,9 @@ def getIdsFromNodes(graph, nodes):
     for n in nodes:
         nodeIds.append(ids[n])
     return nodeIds
-
 def getNeighborNodes(graph, node):
     """Pour un noeud donne, renvoie la liste de ses voisins directs sur le graphe."""
-    neighborNodes = []
-    for nn in graph.getInOutNodes(node):
-        neighborNodes.append(nn)
-    return neighborNodes
+    return tlp.reachableNodes(graph, node, 1, direction=tlp.UNDIRECTED)
 def deleteNodes(graph, nodes):
     """Supprime les noeuds indiques du graphe."""
     for n in nodes:
@@ -64,3 +72,12 @@ def filterNodesWithIds(graph, nodeIds, excluded=False):
     """
     # False==0 et True==1
     return splitNodesWithIds(graph, nodeIds)[excluded]
+
+def getQuotientGraph(graph, quotientGraphName='quotient graph'):
+    """Construit un graphe quotient depuis un graphe avec des sous-graphes."""
+    params = tlp.getDefaultPluginParameters("Quotient Clustering", graph)
+    params["use name of subgraph"] = True
+    params["layout quotient graph(s)"] = True
+    graph.applyAlgorithm("Quotient Clustering", params)
+    quotientGraphDefaultName = 'quotient of ' + graph.getAttribute('name')
+    renameSubGraph(getRootGraph(), quotientGraphDefaultName, quotientGraphName)

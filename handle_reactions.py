@@ -60,7 +60,7 @@ def getReactionExpression(reactionId, reactionIdToGenes, method):
     Parametres
     ----------
     reactionId : string, l'id BioCyc d'un element (substrat, produit ou reaction)
-    reactionIdToComponents : dictionnaire associant un reactionId (cle) a ses genes (valeur)
+    reactionIdToGenes : dictionnaire associant un reactionId (cle) a ses genes (valeur)
     method : string parmi ['mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ']
     """
     nodeData = getReactionData(reactionId, reactionIdToGenes)
