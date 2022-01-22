@@ -45,7 +45,7 @@ def grid_map(nodes, lignes, colonnes, graph):
     
     """
     graph['viewShape'].setAllNodeValue(0)
-    graph['viewSize'].setAllNodeValue( (0.9 ,1 ,0) )
+    graph['viewSize'].setAllNodeValue( (0.95 ,1 ,0) )
     for i in range(colonnes):   
         for j in range(lignes):
 
@@ -90,6 +90,9 @@ def color_heatmap(graph, prop, nodes):
     params = tlp.getDefaultPluginParameters("Color Mapping", graph)
 
     params['property'] = graph[prop]
+    #params["override minimum value"] = True
+    #params["override maximum value"] = True
+    params["type"] = "uniform"
     
     colorScale = tlp.ColorScale([])    
     colorScale.setColorAtPos(0.0, tlp.Color.Blue)
@@ -221,7 +224,7 @@ def cluster_row(df):
     return df 
 
 
-def heatmap(graph, df, property_name, cluster = True) :
+def heatmap(graph, df, property_name="expr", cluster = True) :
     """
     Affiche une heatmap à partir d'un pandas.DataFrame
     
