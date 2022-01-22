@@ -48,18 +48,21 @@ def getPathways(reactions):
         
     return pathways, to_delete, liste
 
+def getReactionsID(data, pathway):
+    reactions = []
+    doc = requestBiocyc(pathway)
+    for e in doc.findall(".//reaction-list/Reaction"):
+        reactions.append(e.attrib['frameid'])
+    data[pathway] = reactions
+    return 
+
 def getReactions(pathways):
     data = {}
-    error = []
-    for pathway in pathways:
-        reaction_list = []
+    for p in pathways:
         try :
-            doc = requestBiocyc(pathway)
-            for e in doc.findall(".//reaction-list/Reaction"):
-                reaction_list.append(e.attrib['frameid'])
-            data[pathway] = reaction_list
+            getReactionsID(data, p)
         except :
-            error.append(pathway)
+            pass
     return data
 
 def subgraph(graph,pathway_name,dictionnaire):
