@@ -9,18 +9,19 @@ Unique script a executer pour repondre a la problematique.
 @ SIMON Arnaud
 """
 
-from handle_files import loadDataFiles, parseGeneAssociation
-from aggregate_expression import setExpressionProperty
+#from handle_requests
+from handle_graphs import renameLabelsWithProperty, filterNodesWithIds, getNeighborNodes, getIdsFromNodes, deleteNodes
+from handle_genes import loadDataFiles
+from handle_reactions import parseGeneAssociation, setReactionExpressionProperty
 
-expressionMethod = 'normalZ' # options: 'mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ'
+expressionMethod = 'upDownZ' # options: 'mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ'
 
-def main(graph):    
+def main(graph):
     loadDataFiles()
-    nodeIdToGenes = parseGeneAssociation(graph)
-    setExpressionProperty(graph, nodeIdToGenes, expressionMethod)
-    # expression = graph.getDoubleVectorProperty('expression')
-    # test = []
-    # for n in graph.getNodes():
-    #     test.append(n)
-    # node936 = test[936]
-    # print(expression[node936])
+
+    # utilisation des ids sur le graphe
+    renameLabelsWithProperty(graph, 'id')
+
+    # calcul de l'expression des reactions:
+    reactionIdToGenes = parseGeneAssociation(graph)
+    setReactionExpressionProperty(graph, reactionIdToGenes, expressionMethod)
