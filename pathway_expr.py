@@ -84,7 +84,7 @@ def main(graph):
     wg=graph.getSubGraph("Workingraph")
     quotient=graph.getSubGraph("quotient of Workingraph")
     
-    pathway_expression = get_aggregated_expr_pathway(wg, method = "mean")
+    pathway_expression = get_aggregated_expr_pathway(wg, method = "upDownZ")
     
     roots = tlp.getRootGraphs()
     heat = None
