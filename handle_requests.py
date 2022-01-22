@@ -34,8 +34,9 @@ def requestBiocyc(ID):
     # in case of a temporary ban
     elif response.status_code == 429:
         time.sleep(60)
-        response = requests.get(URL, timeout = 5)
-        doc = ET.fromstring(response.text)
+        requestBiocyc(ID)
+        # response = requests.get(URL, timeout = 5)
+        # doc = ET.fromstring(response.text)
     return doc
 
 def getPathwayID(pathways, reaction):
