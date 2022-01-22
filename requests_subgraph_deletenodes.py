@@ -72,28 +72,28 @@ def main(graph):
 ######### Définition de toutes les fonctions utilisées
 
 def getTulipID(graph):
-    id=graph.getStringProperty('id')
-    reaction_true=graph.getBooleanProperty('reaction')
-    id_list=[]
+    id_list = []
+    id = graph.getStringProperty('id')
+    reaction_true = graph.getBooleanProperty('reaction')
     for n in graph.getNodes():
-        if reaction_true[n]==True:
+        if reaction_true[n] == True:
             id_list.append(id[n])
     return id_list
 
 def requestBiocyc(ID,liste):
     URL = "https://websvc.biocyc.org/getxml?ECOLI:" + ID
-    response = requests.get(URL,timeout=2)
+    response = requests.get(URL, timeout = 2)
     if response.status_code not in liste :
         liste.append(response.status_code)
     if response.status_code == 200:
         doc = ET.fromstring(response.text)
     elif response.status_code == 429:
         time.sleep(60)
-        response = requests.get(URL,timeout=2)
+        response = requests.get(URL, timeout = 2)
         doc = ET.fromstring(response.text)
-    return doc,liste
+    return doc, liste
 
-def getPathwayID(pathways, reaction,liste):
+def getPathwayID(pathways, reaction, liste):
     doc,liste = requestBiocyc(reaction,liste)
     for e in doc.findall(".//in-pathway/Pathway"):
         ID = e.attrib['frameid']
@@ -113,18 +113,21 @@ def getPathways(reactions):
         
     return pathways, to_delete, liste
 
+def getReactionsID(data, pathway):
+    reactions = []
+    doc = requestBiocyc(pathway)
+    for e in doc.findall(".//reaction-list/Reaction"):
+        reactions.append(e.attrib['frameid'])
+    data[pathway] = reactions
+    return 
+
 def getReactions(pathways):
     data = {}
-    error=[]
-    for pathway in pathways:
-        reaction_list = []
+    for p in pathways:
         try :
-            doc = requestBiocyc(pathway)
-            for e in doc.findall(".//reaction-list/Reaction"):
-                reaction_list.append(e.attrib['frameid'])
-            data[pathway] = reaction_list
+            getReactionsID(data, p)
         except :
-            error.append(pathway)
+            pass
     return data
 
 def subgraph(graph,pathway_name,dictionnaire):
