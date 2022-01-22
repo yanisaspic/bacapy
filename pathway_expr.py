@@ -42,7 +42,7 @@ def fill_na(path_expr, tp = 17):
     tp : int, nombre de timestamp
     
     """
-    None_list = [0]*tp
+    None_list = ["NA"]*tp
     for i in path_expr : 
         if len(path_expr[i]) == 0:
              path_expr[i] = None_list
