@@ -21,10 +21,6 @@ reactionExpressionMethod = 'mean' # options: 'mean', 'maxStd', 'minStd', 'upDown
 pathwayExpressionMethod = 'mean' # options: 'mean', 'maxStd', 'minStd', 'upDownZ'
 
 def main(graph):
-    
-    # query BioCyc to get pathways and remove nodes without pathways
-    # pathways = filterBiocycPathways(graph)
-    # print(pathways)
 
     loadGeneFiles()
     wg = getWorkingGraph(graph)
@@ -33,8 +29,7 @@ def main(graph):
     # compute the expression score of reactions
     reactionIdToGenes = parseGeneAssociation(wg)
     setReactionExpressionProperty(wg, reactionIdToGenes, reactionExpressionMethod)
-    
-    #
+
     pathways = {'PWY-5837': ['RXN-9311', 'NAPHTHOATE-SYN-RXN', 'RXN-9310', '2.5.1.64-RXN', 'ISOCHORSYN-RXN', 'O-SUCCINYLBENZOATE-COA-SYN-RXN', 'O-SUCCINYLBENZOATE-COA-LIG-RXN'],
     'THREONINE-DEG2-PWY': ['AKBLIG-RXN', 'THREODEHYD-RXN'], 'PWY-7179': ['ADDALT-RXN', 'DEOXYADENPHOSPHOR-RXN', 'DEOXYGUANPHOSPHOR-RXN', 'DEOXYINOPHOSPHOR-RXN'],
     'VALSYN-PWY': ['ACETOLACTSYN-RXN', 'ACETOLACTREDUCTOISOM-RXN', 'BRANCHED-CHAINAMINOTRANSFERVAL-RXN', 'DIHYDROXYISOVALDEHYDRAT-RXN'],

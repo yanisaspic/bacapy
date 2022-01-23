@@ -15,13 +15,16 @@ from aggregate_data import getDataFrameAggregate, getDataFrameNormalZAggregate
 
 def parseGeneAssociation(graph):
     """
-    Renvoie un dictionnaire associant l'id BioCyc d'un element (cle) a des genes (valeur).
-    Les elements sont des substrats, des produits ou des reactions.
-    Seuls les genes dont l'expression a ete mesuree sont conserves.
+    Return dictionary with the BioCyc ID of an element as key, and the list of genes as value
+    The elements can be substrates, products, or reactions.
+    Only the genes with an expression are kept.
 
-    Parametres
+    Parameters
     ----------
-    graph : objet tlp.graph() 
+    graph : objet tlp.graph()
+
+    ----------
+    Return : python Dictionary
     """
     biocycIdToGenes = {}
     for node in graph.getNodes():
@@ -33,8 +36,18 @@ def parseGeneAssociation(graph):
     return biocycIdToGenes
 
 def getReactionData(biocycId, biocycIdToGenes):
-    """Renvoie les mesures d'expression des genes impliques dans une reaction.
-    Si biocycId correspond a un substrat, les dataframes renvoyes sont vides."""
+    """
+    Return expression data of the genes involved in a reaction.
+    If biocycId = ID of a substrate, an empty dataframe
+
+    Parameters
+    ----------
+    biocycId : str
+    BiocycIdToGenes : python Dictionary
+
+    ----------
+    Return : pandas.DataFrame
+    """
     reactionData = {'level': {}, 'ratio': {}}
     for dataType in ['level', 'ratio']:
         for geneName in biocycIdToGenes[biocycId]:
@@ -45,13 +58,16 @@ def getReactionData(biocycId, biocycIdToGenes):
 
 def getReactionExpression(reactionId, reactionIdToGenes, method):
     """
-    Applique un algorithme d'aggregation des valeurs d'expression pour un element BioCyc.
+    Aggregate expression values for a BioCyc element.
 
-    Parametres
+    Parameters
     ----------
-    reactionId : string, l'id BioCyc d'un element (substrat, produit ou reaction)
-    reactionIdToGenes : dictionnaire associant un reactionId (cle) a ses genes (valeur)
-    method : string parmi ['mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ']
+    reactionId : str, substrate, product, or reaction' ID from BioCyc
+    reactionIdToGenes : python Dictionary, reactionId as key and genes as values
+    method : str from ['mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ']
+    
+    ----------
+    Return : pandas.DataFrame
     """
     nodeData = getReactionData(reactionId, reactionIdToGenes)
     if len(nodeData['level'])==0:    # substract or product
@@ -62,14 +78,15 @@ def getReactionExpression(reactionId, reactionIdToGenes, method):
 
 def setReactionExpressionProperty(graph, reactionIdToGenes, method):
     """
-    Ajoute ou met a jour la propriete 'expression' du graph.
-    Elle contient les valeurs d'expression apres aggregation des elements BioCyc (reaction, substrat ou produit).
+    Add or Update the 'expression' property of graph
+    this property contain Expression' values after aggregation of
+    BioCyc elements (reaction, substrate, or product).
 
-    Parametres
+    Parameters
     ----------
-    graph : objet tlp.Graph()
-    reactionIdToComponents : dictionnaire associant un reactionId (cle) a ses genes (valeur)
-    method : string parmi ['mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ']
+    graph : tlp.Graph
+    reactionIdToComponents : python Dictionary, reactionId as key and genes as values
+    method : str, from ['mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ']
     """
     graph.getDoubleVectorProperty('expression')
     for node in graph.getNodes():

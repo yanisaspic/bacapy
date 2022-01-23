@@ -9,19 +9,19 @@ from handle_files import *
 
 def get_nodes(gr, lignes=2, colonnes=2, nodes = {}):
     """
-    Créer autant de nodes que nécessaire pour la heatmap
-    Les stocke dans un dictionnaire indicé par leur 
-    numéro de ligne et colonne
+    Create as many nodes as necessary for the heatmap
+    Store them in a Dictionary indexed by their row and
+    column numbers.
     
-    Paramètres
+    Parameters
     ----------
     gr : tlp.Graph
     lignes : int 
     colonnes : int
-    nodes : dictionnaire python
+    nodes : python Dictionary
     
     ----------
-    Return : dictionnaire python
+    Return : python Dictionary
     
     """
     for i in range(lignes) : 
@@ -34,11 +34,11 @@ def get_nodes(gr, lignes=2, colonnes=2, nodes = {}):
    
 def grid_map(nodes, lignes, colonnes, graph):
     """
-    Ordonne les noeuds pour créer une grille
+    Order nodes in a grid
     
-    Paramètres
+    Parameters
     ----------
-    nodes : dictionnaire python contenant la liste des noeuds
+    nodes : Python Dictionary; every nodes of graph
     lignes : int 
     colonnes : int
     graph : tlp.Graph
@@ -53,21 +53,19 @@ def grid_map(nodes, lignes, colonnes, graph):
 
 def add_property(graph,df, nodes, property_name="expr") :
     """
-    Ajoute une propriété (type double) 
-    permettant de colorer les cases de la heatmap
+    Add a property (type : double)
+    coloring the heatmap
     
-    
-    Paramètres
+    Parameters
     ----------
     gr : tlp.Graph
     df : pandas.DataFrame
-    property_name : str, nom de la propriété à créer
-    nodes : python dictionnaire 
+    property_name : str, name of the property to create
+    nodes : Python Dictionary
     
     """
     prop = graph.getDoubleProperty(property_name)
     
-    ligne = 0
     col = 0
     while col < len(nodes[0]) :
         for row in range( len(nodes) ):
@@ -78,20 +76,18 @@ def add_property(graph,df, nodes, property_name="expr") :
 
 def color_heatmap(graph, prop, nodes):
     """
-    Colore la heatmap en fonction de la propriété donnée en paramètre
+    Coloring the heatmap depending on the property given as parameter
     
-    Paramètres
+    Parameters
     ----------
     graph : tlp.Graph
-    prop : nom de la propriété du graph à mapper sur les noeuds 
-    nodes : dictionnaire python
+    prop : Name of property to map on Nodes
+    nodes : python Dictionary
     
     """
     params = tlp.getDefaultPluginParameters("Color Mapping", graph)
 
     params['property'] = graph[prop]
-    #params["override minimum value"] = True
-    #params["override maximum value"] = True
     params["type"] = "uniform"
     
     colorScale = tlp.ColorScale([])    
@@ -105,13 +101,13 @@ def color_heatmap(graph, prop, nodes):
 
 def add_scale(graph, df, prop):
     """
-    Ajoute une échelle de couleur à la heatmap
+    Add a color scale to the heatmap
     
-    Paramètres
+    Parameters
     ----------
     graph : tlp.Graph
     df : pandas.DataFrame
-    prop : nom de la propriété du graph à mapper sur les noeuds 
+    prop : Name of property to map on Nodes
 
     """
     col = df.shape[1]
@@ -129,9 +125,9 @@ def add_scale(graph, df, prop):
         
 def add_features(graph, df, feature) :
     """
-    Ajoute les noms des colonnes ou des lignes à la heatmap
+    Add the names of rows, or columns, to the heatmap
     
-    Paramètres
+    Parameters
     ----------
     graph : tlp.Graph
     df : pandas.DataFrame
@@ -168,12 +164,12 @@ def add_features(graph, df, feature) :
 
 def remove_NA(df,col="tp1") : 
     """
-    Enlève les lignes d'un dataframe contenant "NA"
+    Get rid of "NA" rows in dataframe
     
+    Parameters
     ----------
-    Paramètres
     df : pandas.DataFrame
-    col : str, nom de colonne
+    col : str, column name
     
     ----------
     Return : pandas.DataFrame
@@ -182,13 +178,13 @@ def remove_NA(df,col="tp1") :
     
 def get_corr_mat(df):
     """
-    Créer une matrice de corrélation par 
-    paire entre les lignes du dataframe
+    Create a correlation matrix for every
+    couple of rows in dataframe
     
+    Parameters
     ----------
-    Paramètres
     df : pandas.DataFrame
-    col : str, nom de colonne
+    col : str, column name
     
     ----------
     Return : pandas.DataFrame
@@ -201,12 +197,11 @@ def get_corr_mat(df):
     
 def cluster_row(df):
     """
-    Ordonne les colonne d'un Dataframe en fonction de la 
-    corrélation entre les lignes
+    Order Dataframe' columns depending on the correlation
+    between the rows
     
-    
+    Parameters
     ----------
-    Paramètres
     df : pandas.DataFrame
     
     ----------
@@ -226,14 +221,14 @@ def cluster_row(df):
 
 def heatmap(graph, df, property_name="expr", cluster = True) :
     """
-    Affiche une heatmap à partir d'un pandas.DataFrame
+    Display heatmap from a pandas.DataFrame
     
-    Paramètres
+    Parameters
     ----------
     graph : tlp.Graph
     df : pandas.DataFrame
-    prop : nom de la propriété du graph à mapper sur les noeuds 
-    cluster : Booleen, True : Ordonne les lignes de la heatmap
+    prop : Name of property to map on Nodes
+    cluster : Boolean, True : Order heatmap' rows
 
     """
     

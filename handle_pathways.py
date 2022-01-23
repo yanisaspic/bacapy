@@ -14,13 +14,14 @@ from tulip import tlp
 from aggregate_data import getDataFrameAggregate
 
 def getPathwayNodes(graph, pathwayId, pathwayIdsToReactions):
-    """Renvoie la liste des noeuds impliques dans une voie metabolique (reaction, substrat et produit).
+    """
+    Return list of nodes involved in a pathway (reaction, substrate, and product).
     
-    Parametres
+    Parameters
     ----------
-    graph : objet tlp.Graph()
-    pathwayId : string, l'id BioCyc d'un pathway
-    pathwayIdsToReactions : dictionnaire associant un pathwayId (cle) a ses reactions (valeur)
+    graph : tlp.Graph
+    pathwayId : str, BioCyc ID of a pathway
+    pathwayIdsToReactions : python Dictionary, pathwayId as key and reactions as values
     """
     reactionNodes = hg.filterNodesWithIds(graph, pathwayIdsToReactions[pathwayId])
     pathwayNodes = set(reactionNodes)
@@ -28,20 +29,29 @@ def getPathwayNodes(graph, pathwayId, pathwayIdsToReactions):
         pathwayNodes.update(hg.getNeighborNodes(graph, n))
     return list(pathwayNodes)
 def drawPathwaySubGraphs(graph, pathwayIdsToReactions):
-    """Dessine des sous-graphes correspondant a une voie metabolique unique."""
+    """
+    Draw subgraph for each pathway
+    
+    Parameters
+    ----------
+    graph : tlp.Graph
+    pathwayIdsToReactions : python Dictionary, pathwayId as key and reactions as values
+    """
     for pathwayId in pathwayIdsToReactions:
         pathwayNodes = getPathwayNodes(graph, pathwayId, pathwayIdsToReactions)
         graph.inducedSubGraph(pathwayNodes, name=pathwayId)
 
 def getOnePathwayExpression(pathwaySubGraph, method):
     """
-    Renvoie l'expression agregee d'une voie metabolique d'apres les valeurs
-    d'expression des reactions associees.
+    Return aggregated expression of a pathway from expression values of its reactions
     
-    Parametres
+    Parameters
     ----------
     pathwaySubGraph : tlp.Graph
-    method : string parmi ['mean', 'maxStd', 'minStd', 'upDownZ']
+    method : string, from ['mean', 'maxStd', 'minStd', 'upDownZ']
+
+    ----------
+    return : list
     """
     reactionsExpression = hg.getExpression(pathwaySubGraph)
     # erreur avec minStd et maxStd quand les expressions de reactions n'ont pas ete mesurees
@@ -51,18 +61,17 @@ def getOnePathwayExpression(pathwaySubGraph, method):
 
 def getAllPathwaysExpression(graph, method):
     """
-    Renvoie un dictionnaire associant une voie metabolique (cle) a une liste de 
-    donnees d'expression agregees (valeur) calculee depuis l'expression des reactions associees.
-    L'expression est calculee depuis des sous-graphes correspondant chacun a
-    une voie metabolique unique. 
+    Return Dictionary with pathway as keys and list of aggregated expressions as values
+    (computed from expression of involved reactions).
+    The expression is computed from sub-graphs each corresponding to independent pathways
     
-    Parametres
+    Parameters
     ----------
     graph : tlp.Graph
-    method : string parmi ['mean', 'maxStd', 'minStd', 'upDownZ']
+    method : str, from ['mean', 'maxStd', 'minStd', 'upDownZ']
 
     ----------
-    Return : dictionnaire
+    Return : python Dictionary
     """
     pathwayIdToExpression = {}
     for pathwaySubGraph in graph.getSubGraphs():
@@ -72,21 +81,29 @@ def getAllPathwaysExpression(graph, method):
     return pathwayIdToExpression
 
 def setPathwayExpressionProperty(quotientGraph, pathwaysExpression):
-    """Ajoute ou met a jour la propriete expression du graph.
-    Elle contient les valeurs d'expression apres aggregation des elements BioCyc (reaction, substrat ou produit).
-
-    Parametres
+    """
+    Add or Update the Expression Property of graph.
+    With the aggregated expression values of BioCyc Elements (reaction, substrate, or product)
+   
+    Parameters
     ----------
-    quotientGraph : objet tlp.Graph
-    pathwaysExpression : dictionnaire associant un pathwayId (cle) a son expression agregee (valeur)
-    timestamp : estampille correspondant au graph quotient"""
+    quotientGraph : tlp.Graph
+    pathwaysExpression : python Dictionary, pathwayId as key and aggregated expression as value
+    """
     quotientGraph.getDoubleVectorProperty('expression')
     for n in quotientGraph.getNodes():
         pathwayLabel = quotientGraph['viewLabel'][n]
         quotientGraph['expression'][n] = pathwaysExpression[pathwayLabel]
 
 def customizeGraph(graph, timestamp):
-    """Adapte la taille et la couleur des noeuds d'un graphe selon le niveau d'expression au timestamp donne."""
+    """
+    Adapt size and color of graph' nodes depending on expression level at timestamp
+
+    Parameters
+    ----------
+    graph : tlp.Graph
+    timestamp : int
+    """
     for n in graph.getNodes():
         pathwayExpression = graph['expression'][n]
         # on n'affiche pas les pathways dont l'expression n'a pas ete mesuree :
@@ -100,7 +117,14 @@ def customizeGraph(graph, timestamp):
         graph['viewShape'][n] = tlp.NodeShape.Circle
 
 def drawQuotientGraphs(graph, pathwaysExpression, timestamps):
-    """Dessine un graphe quotient de pathways pour chaque timestamp indique."""
+    """
+    Draw Quotient Graph of pathways for each timestamp
+
+    Parameters
+    ----------
+    graph : tlp.Graph
+    timestamps : list of int
+    """
     for t in timestamps:
         quotientGraphName = f'tp{t+1} quotient graph'
         qg = hg.getQuotientGraph(graph, quotientGraphName)

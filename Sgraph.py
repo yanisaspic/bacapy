@@ -9,7 +9,7 @@ def creer_quotient(graph):
     params["layout clusters"] = False
     params["edge cardinality"] = False
     
-    # Permet de renommer les meta noeuds
+    # Rename meta-nodes
     params["use name of subgraph"] = True
     graph.applyAlgorithm("Quotient Clustering", params)
 
@@ -24,8 +24,7 @@ def dessiner_communautes_quotient(gr,pn,wg,i):
         
     for n in gr.getNodes():
         name=gr['viewLabel'][n]
-        '''On prend en compte le fait que l'expression est parfois nulle : on décide
-        de ne pas afficher ces pathways là '''
+        # If the expression value is 0, the node is not displayed
         if len(dictionnaire[name]) == 0 :
             gr['viewSize'][n] = (0,0,0)
         else :

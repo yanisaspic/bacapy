@@ -19,11 +19,12 @@ def requestBiocyc(ID):
     Performs a request for an object (reaction, pathway ...)
     with its ID in BioCyc. 
     
-    Parameters:
-        ID (string): ID of the requested object
+    Parameters
+    ----------
+    ID : str, requested object' ID
     
-    Returns:
-        doc (xml): The BioCyc XML text of our requested object 
+    ----------
+    Return : doc (xml), BioCyc XML text of our requested object 
         
     """
     # monitor requests 
@@ -43,11 +44,12 @@ def getPathwaysID(pathways, reaction):
     Adds the metabolic pathways associated with the reaction
     to the list of pathways. 
     
-    Parameters:
-        pathways   (list): Unique list of pathways associated
-                           to our reactions in BioCyc
-        reaction (string): ID of the reaction for which we search
-                           its pathways in BioCyc
+    Parameters
+    ----------
+    pathways   (list): Unique list of pathways associated
+                        to our reactions in BioCyc
+    reaction : str, ID of the reaction for which we search
+                        its pathways in BioCyc
     
     """
     doc = requestBiocyc(reaction)
@@ -63,11 +65,13 @@ def getPathways(reactions):
     Biocyc and the list of reactions to delete not found 
     in BioCyc.
     
-    Parameters:
-        reactions (list): List of reaction IDs retrieved 
-                          from our Tulip graph
-                          
-    Returns:
+    Parameters
+    ----------
+    reactions (list): List of reaction IDs retrieved 
+                      from our Tulip graph
+    
+    ----------             
+    Return :
         pathways  (list): Unique list of pathways associated
                           to our reactions in BioCyc
         to_delete (list): List of reactions to delete in our
@@ -87,11 +91,12 @@ def getReactionIdsFromPathway(pathway):
     """
     Retrieves in BioCyc all reactions associated to a pathway.
     
-    Parameters:
-        pathway (string): Pathway id
+    Parameters
+    ----------
+    pathway (string): Pathway id
         
-    Returns:
-        reactions (list): List of associated reactions ids
+    ----------
+    Return : reactions (list): List of associated reactions ids
         
     """
     print(f"{time.time() - start}: {pathway}")
@@ -107,12 +112,13 @@ def getPathwayIdsToReactions(pathways):
     Associate for each identified metabolic pathway the 
     reactions that are associated with it.
     
-    Parameters:
-        pathways (list): List of identified pathways
-    
-    Returns:
-        data (dict): String of pathway id as key and its 
-                     associated reaction list as values
+    Parameters
+    ----------
+    pathways (list): List of identified pathways
+
+    ----------
+    Returns : data (dict): String of pathway id as key and its 
+              associated reaction list as values
         
     """
     data = {}
@@ -129,7 +135,8 @@ def removeNotBiocycReactions(graph, notBR):
     Deletes all reactions not found on BioCyc. Substrates are 
     also deleted if they are not used by found reactions.
     
-    Parameters:
+    Parameters
+    ----------
         graph (tlp.Graph): Ecoli K12 substrates - reactions graph 
         notBR (list): List of reaction IDs not found on BioCyc
     
@@ -145,11 +152,12 @@ def getReactionIdsFromGraph(graph):
     """
     Returns all BioCyc ids corresponding to a reaction in the graph.
     
-    Parameters:
+    Parameters
+    ----------
         graph (tlp.Graph): Ecoli K12 substrates - reactions graph 
     
-    Returns:
-        reactions (list): List of associated reactions ids
+    ----------
+    Return : reactions (list): List of associated reactions ids
     """
     ids=graph.getStringProperty('id')
     isReaction=graph.getBooleanProperty('reaction')
@@ -164,11 +172,12 @@ def filterBiocycPathways(graph):
     Removes the reactions not found on BioCyc and returns a dict of pathways as keys
     and their reactions as values.
     
-    Parameters:
+    Parameters
+    ----------
         graph (tlp.Graph): Ecoli K12 substrates - reactions graph 
-        
-    Returns:
-        data (list): dict of pathways (keys) and their associated reactions ids (values)
+
+    ----------    
+    Return : data (list): dict of pathways (keys) and their associated reactions ids (values)
     """
     # measure query time
     global start
