@@ -24,7 +24,8 @@ def getColorScale():
     colorScale = tlp.ColorScale([])
     colorScale.setColorAtPos(0.0, tlp.Color.Blue)
     colorScale.setColorAtPos(0.05, tlp.Color.Azure)
-    colorScale.setColorAtPos(0.33, tlp.Color.White)
+    colorScale.setColorAtPos(0.6, tlp.Color(255,255,191))
+    colorScale.setColorAtPos(0.4, tlp.Color(255,255,191)) 
     colorScale.setColorAtPos(0.95, tlp.Color.OrangeRed)
     colorScale.setColorAtPos(1.0, tlp.Color.Red)
     return colorScale
