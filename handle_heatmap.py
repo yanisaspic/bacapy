@@ -17,7 +17,7 @@ import scipy.cluster.hierarchy as spch
 
 def convertToDataFrame(pathwaysExpression, expectedSize):
     """
-    Converts the pathways and expression values dictionary into a dataFrame.
+    Convert the pathways and expression values dictionary into a dataFrame.
     
     Parameters
     ----------
@@ -91,7 +91,7 @@ def addDoubleProperty(graph, dataFrame, nodes, propertyName) :
 
 def colorNodes(graph, propertyName):
     """
-    Colorizes a graph's nodes according to the property values indicated.
+    Colorize a graph's nodes according to the property values indicated.
 
     Parameters
     ----------
@@ -207,10 +207,10 @@ def addHeadersAndIndexes(graph, dataFrame):
     
 def clusterizeDataFrame(dataFrame):
     """
-    Clusterizes a dataFrame using correlation and distance calculations.
+    Clusterize a dataFrame using correlation and distance calculations.
     
+    Parameters
     ----------
-    Paramètres
     dataFrames : pandas.DataFrame
     
     ----------
@@ -229,7 +229,7 @@ def drawHeatmap(graph, dataFrame, propertyName, clusterize) :
     """
     Displays a heatmap using expression values stored in a dataFrame.
     
-    Parametres
+    Parameters
     ----------
     graph : tlp.Graph
     dataFrame : pandas.DataFrame
@@ -250,7 +250,7 @@ def getHeatmap(dataFrame, propertyName="expression", clusterize=True):
     """
     Creates a new graph and displays a heatmap using expression values stored in a dataFrame.
     
-    Parametres
+    Parameters
     ----------
     dataFrame : pandas.DataFrame
     propertyName : name of the property used for the nodes color mapping
