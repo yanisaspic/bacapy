@@ -1,5 +1,5 @@
 """
-Librairie pour interagir avec les structures de donnees d'expression genique.
+Library to interact with our gene expression data files.
 
 @ ASLOUDJ Yanis
 @ COLAJANNI Antonin
