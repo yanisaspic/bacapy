@@ -14,8 +14,10 @@ import pandas as pd
 
 def getColorScale():
     colorScale = tlp.ColorScale([])
-    colorScale.setColorAtPos(-1.0, tlp.Color.Blue)
-    colorScale.setColorAtPos(0.0, tlp.Color.White)
+    colorScale.setColorAtPos(0.0, tlp.Color.Blue)
+    colorScale.setColorAtPos(0.05, tlp.Color.Azure)
+    colorScale.setColorAtPos(0.33, tlp.Color.White)
+    colorScale.setColorAtPos(0.95, tlp.Color.OrangeRed)
     colorScale.setColorAtPos(1.0, tlp.Color.Red)
     return colorScale
 
