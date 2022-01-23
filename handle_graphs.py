@@ -13,6 +13,14 @@ from tulip import tlp
 import pandas as pd
 
 def getColorScale():
+    """
+    Create a new color scale.
+    
+    Returns
+    -------
+    colorScale: tlp.ColorScale
+        a color scale
+    """
     colorScale = tlp.ColorScale([])
     colorScale.setColorAtPos(0.0, tlp.Color.Blue)
     colorScale.setColorAtPos(0.05, tlp.Color.Azure)
@@ -22,37 +30,65 @@ def getColorScale():
     return colorScale
 
 def getRootGraph():
+    """
+    Return the root graph.
+    
+    Returns
+    -------
+    graph: tlp.Graph
+    """
     for graph in tlp.getRootGraphs():
         return graph
+    
 def newSubGraph(graph, subGraphName):
     """
-    Create a new sub-graph
-    If a graph of the same name already exist, it is delete beforehand.
+    Create a new sub-graph. If a graph of the same name
+    already exist, it is delete beforehand.
     
-    Parametres
+    Parameters
     ----------
-    graph : tlp.Graph
-    subGraphName : str
+    graph: tlp.Graph
+    subGraphName: str
 
-    ----------
-    Return : tlp.Graph
+    Returns
+    -------
+    tlp.Graph
     """
     sg = graph.getSubGraph(subGraphName)
     if sg != None:
         graph.delAllSubGraphs(sg)
     return graph.addCloneSubGraph(subGraphName)
-def getWorkingGraph(graph, workingGraphName='working graph', originalGraphName='original graph'):
-    wg, og = newSubGraph(graph, workingGraphName), newSubGraph(graph, originalGraphName)
-    return wg
-def renameSubGraph(graph, subGraphName, subGraphNewName):
+
+
+def getWorkingGraph(graph, workingGraphName = 'working graph',
+                    originalGraphName = 'original graph'):
     """
-    Rename a sub-graph
+    Get the working graph.
     
     Parameters
     ----------
-    graph : tlp.Graph
-    subGraphName : str
-    subGraphNewName : str
+    graph:  tlp.Graph
+    workingGraphName: str
+    originalGraphName: str
+    
+    Returns
+    -------
+    wg: tlp.Graph
+    """
+    og = newSubGraph(graph, originalGraphName)
+    wg = newSubGraph(graph, workingGraphName)
+    return wg
+
+
+def renameSubGraph(graph, subGraphName, subGraphNewName):
+    """
+    Rename a sub-graph.
+    
+    Parameters
+    ----------
+    graph: tlp.Graph
+    subGraphName: str
+    subGraphNewName: str
     """
     sg = graph.getSubGraph(subGraphName)
     sg.setAttribute('name', subGraphNewName)
@@ -63,8 +99,8 @@ def renameLabelsWithProperty(graph, propertyName):
     
     Parameters
     ----------
-    graph : tlp.Graph
-    propertyName : str
+    graph: tlp.Graph
+    propertyName: str
     """
     currentLabels = graph.getStringProperty('viewLabel')
     newLabels = graph.getStringProperty(propertyName)
@@ -77,53 +113,68 @@ def getIdsFromNodes(graph, nodes):
 
     Parameters
     ----------
-    graph : tlp.Graph
-    nodes : array, tlp.Node
+    graph: tlp.Graph
+    nodes: list
+        the list of Tlp.Node 
 
-    ----------
-    Return : array, str
+    Returns
+    -------
+    nodeIds: list
+        the list of nodes id (str)
+
     """
     nodeIds = []
     ids = graph.getStringProperty('id')
     for n in nodes:
         nodeIds.append(ids[n])
     return nodeIds
+
 def getNeighborNodes(graph, node):
     """
-    For a given node, return the list of all its direct neighbors
+    For a given node, return the list of all its 
+    direct neighbors.
     
     Parameters
     ----------
-    graph : tlp.Graph
-    nodes : array, tlp.Node
+    graph: tlp.Graph
+    node: tlp.Node
 
-    ----------
-    Return : array, tlp.Node
+    Returns
+    -------
+    nn: list
+        the list of neighor nodes (Tlp.Node) 
+    
     """
-    return tlp.reachableNodes(graph, node, 1, direction=tlp.UNDIRECTED)
+    nn = tlp.reachableNodes(graph, node, 1, direction = tlp.UNDIRECTED)
+    return nn
+
 def deleteNodes(graph, nodes):
     """
-    Delete nodes from graph
+    Delete nodes from graph.
     
     Parameters
     ----------
     graph : tlp.Graph
-    nodes : array, tlp.Node
+    nodes: list
+        the list of Tlp.Node 
     """
     for n in nodes:
         graph.delNode(n)
 
 def splitNodesWithIds(graph, nodeIds):
     """
-    Separate nodes depending on where they belong in an array of nodes' ids
+    Separate nodes depending on where they belong in an
+    array of nodes' ids.
     
     Parameters
     ----------
     graph : tlp.Graph
     nodeIds : list, str
 
-    ----------
-    Return : tuple, list, tlp.Node
+    Returns
+    -------
+    includedNodes: list
+    excludedNodes: list
     """
     includedNodes, excludedNodes = [], []
     ids = graph.getStringProperty('id')
@@ -133,32 +184,39 @@ def splitNodesWithIds(graph, nodeIds):
         else:
             excludedNodes.append(n)
     return includedNodes, excludedNodes
-def filterNodesWithIds(graph, nodeIds, excluded=False):
+
+def filterNodesWithIds(graph, nodeIds, excluded = False):
     """
-    Return nodes depending on their belonging in an array of nodes' IDs.
+    Return nodes depending on their belonging in an
+    array of nodes' IDs.
+    
+    Parameters
+    ----------
+    graph: tlp.Graph
+    nodeIds: list
+        the list of nodes id (str)
+    excluded: boolean
+        if false, keep nodes in the list
+
+    Returns
+    -------
+    nodeIdList: list
+        list of excluded or included nodes id (str)
+    """
+    nodesIdList = splitNodesWithIds(graph, nodeIds)[excluded]
+
+def getQuotientGraph(graph, quotientGraphName = 'quotient graph'):
+    """
+    Create Quotient Graph from a graph with sub-graph.
     
     Parameters
     ----------
     graph : tlp.Graph
-    nodeIds : list, str
-    excluded : boolean, (False) keep nodes in the list
-
-    ----------
-    Return : tuple, list, tlp.Node
-    """
-    return splitNodesWithIds(graph, nodeIds)[excluded]
-
-def getQuotientGraph(graph, quotientGraphName='quotient graph'):
-    """
-    Create Quotient Graph from a graph with sub-graph
+    quotientGraphName: str
     
-    Parameters
-    ----------
-    graph : tlp.Graph
-    quotientGraphName = str
-    
-    ----------
-    Return : tlp.Graph
+    Returns
+    -------
+    tlp.Graph
     """
     params = tlp.getDefaultPluginParameters("Quotient Clustering", graph)
     params["use name of subgraph"] = True
@@ -176,8 +234,9 @@ def getExpression(graph):
     ----------
     graph : tlp.Graph
 
-    ----------
-    Return : pandas.DataFrame
+    Returns
+    -------
+    pandas.DataFrame
     """
     expression = graph['expression']
     expressionList = []
