@@ -21,10 +21,20 @@ def getColorScale():
 
 def getRootGraph():
     for graph in tlp.getRootGraphs():
-        return graph    
+        return graph
 def newSubGraph(graph, subGraphName):
-    """Cree un nouveau sous-graphe. 
-    Si un graphe du meme nom existe deja, il est prealablement supprime."""
+    """
+    Create a new sub-graph
+    If a graph of the same name already exist, it is delete beforehand.
+    
+    Parametres
+    ----------
+    graph : tlp.Graph
+    subGraphName : str
+
+    ----------
+    Return : tlp.Graph
+    """
     sg = graph.getSubGraph(subGraphName)
     if sg != None:
         graph.delAllSubGraphs(sg)
@@ -33,34 +43,86 @@ def getWorkingGraph(graph, workingGraphName='working graph', originalGraphName='
     wg, og = newSubGraph(graph, workingGraphName), newSubGraph(graph, originalGraphName)
     return wg
 def renameSubGraph(graph, subGraphName, subGraphNewName):
-    """Renomme un sous-graphe."""
+    """
+    Rename a sub-graph
+    
+    Parameters
+    ----------
+    graph : tlp.Graph
+    subGraphName : str
+    subGraphNewName : str
+    """
     sg = graph.getSubGraph(subGraphName)
     sg.setAttribute('name', subGraphNewName)
 
 def renameLabelsWithProperty(graph, propertyName):
-    """Renomme les labels des noeuds d'un graphe d'apres une propriete du graphe."""
+    """
+    Rename the labels of a graph' nodes using one of the graph' property.
+    
+    Parameters
+    ----------
+    graph : tlp.Graph
+    propertyName : str
+    """
     currentLabels = graph.getStringProperty('viewLabel')
     newLabels = graph.getStringProperty(propertyName)
     for n in graph.getNodes():
         currentLabels[n] = newLabels[n]
 
 def getIdsFromNodes(graph, nodes):
-    """Renvoie une liste d'ids correspondant aux noeuds du graphe indiques."""
+    """
+    Return an array of nodes' IDs from the graph.
+
+    Parameters
+    ----------
+    graph : tlp.Graph
+    nodes : array, tlp.Node
+
+    ----------
+    Return : array, str
+    """
     nodeIds = []
     ids = graph.getStringProperty('id')
     for n in nodes:
         nodeIds.append(ids[n])
     return nodeIds
 def getNeighborNodes(graph, node):
-    """Pour un noeud donne, renvoie la liste de ses voisins directs sur le graphe."""
+    """
+    For a given node, return the list of all its direct neighbors
+    
+    Parameters
+    ----------
+    graph : tlp.Graph
+    nodes : array, tlp.Node
+
+    ----------
+    Return : array, tlp.Node
+    """
     return tlp.reachableNodes(graph, node, 1, direction=tlp.UNDIRECTED)
 def deleteNodes(graph, nodes):
-    """Supprime les noeuds indiques du graphe."""
+    """
+    Delete nodes from graph
+    
+    Parameters
+    ----------
+    graph : tlp.Graph
+    nodes : array, tlp.Node
+    """
     for n in nodes:
         graph.delNode(n)
 
 def splitNodesWithIds(graph, nodeIds):
-    """Separe les noeuds selon leur appartenance a une liste d'ids de noeuds."""
+    """
+    Separate nodes depending on where they belong in an array of nodes' ids
+    
+    Parameters
+    ----------
+    graph : tlp.Graph
+    nodeIds : list, str
+
+    ----------
+    Return : tuple, list, tlp.Node
+    """
     includedNodes, excludedNodes = [], []
     ids = graph.getStringProperty('id')
     for n in graph.getNodes():
@@ -70,19 +132,32 @@ def splitNodesWithIds(graph, nodeIds):
             excludedNodes.append(n)
     return includedNodes, excludedNodes
 def filterNodesWithIds(graph, nodeIds, excluded=False):
-    """Renvoie des noeuds selon leur appartenance a une liste d'ids de noeuds.
-    
-    Parametres
-    ----------
-    graph : objet tlp.Graph()
-    nodeIds : list de strings, les ids des noeuds
-    excluded : bool, les noeuds conserves sont ceux inclus (False) ou exclus (True) de la liste
     """
-    # False==0 et True==1
+    Return nodes depending on their belonging in an array of nodes' IDs.
+    
+    Parameters
+    ----------
+    graph : tlp.Graph
+    nodeIds : list, str
+    excluded : boolean, (False) keep nodes in the list
+
+    ----------
+    Return : tuple, list, tlp.Node
+    """
     return splitNodesWithIds(graph, nodeIds)[excluded]
 
 def getQuotientGraph(graph, quotientGraphName='quotient graph'):
-    """Construit un graphe quotient depuis un graphe avec des sous-graphes."""
+    """
+    Create Quotient Graph from a graph with sub-graph
+    
+    Parameters
+    ----------
+    graph : tlp.Graph
+    quotientGraphName = str
+    
+    ----------
+    Return : tlp.Graph
+    """
     params = tlp.getDefaultPluginParameters("Quotient Clustering", graph)
     params["use name of subgraph"] = True
     #params["layout quotient graph(s)"] = True
@@ -93,11 +168,14 @@ def getQuotientGraph(graph, quotientGraphName='quotient graph'):
     
 def getExpression(graph):
     """
-    Renvoie un dataFrame contenant les expressions des noeuds d'un graphe.
+    Return a dataFrame with a graph' nodes' expressions levels.
     
-    Parametres
+    Parameters
     ----------
-    graph : objet tlp.Graph
+    graph : tlp.Graph
+
+    ----------
+    Return : pandas.DataFrame
     """
     expression = graph['expression']
     expressionList = []
