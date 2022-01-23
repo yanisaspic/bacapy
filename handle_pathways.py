@@ -13,6 +13,8 @@ import handle_graphs as hg
 from tulip import tlp
 from aggregate_data import getDataFrameAggregate
 
+forceLayoutMethod = 'FM^3 (OGDF)'
+
 def getPathwayNodes(graph, pathwayId, pathwayIdsToReactions):
     """
     Return list of nodes involved in a pathway (reaction, substrate, and product).
@@ -115,6 +117,24 @@ def customizeGraph(graph, timestamp):
             graph['viewSize'][n] = (size, size, 0)
             graph['viewColor'][n] = hg.getColorScale().getColorAtPos(tpExpression)
         graph['viewShape'][n] = tlp.NodeShape.Circle
+    hg.colorNodes(graph, 'tpExpression')
+    graph.applyLayoutAlgorithm(forceLayoutMethod)
+
+def setTimestampExpressionProperty(quotientGraph, timestamp):
+    """Adds or updates the tpExpression property of a graph.
+    It corresponds to the expression at a given timestamp.
+
+    Parametres
+    ----------
+    quotientGraph : objet tlp.Graph
+    timestamp : int
+    """
+    quotientGraph.getDoubleProperty('tpExpression')
+    for n in quotientGraph.getNodes():
+        pathwayExpression = quotientGraph['expression'][n]
+        # ignore pathways without measured gene activity
+        if len(pathwayExpression) > 0:
+            quotientGraph['tpExpression'][n] = pathwayExpression[timestamp]
 
 def drawQuotientGraphs(graph, pathwaysExpression, timestamps):
     """
@@ -129,4 +149,5 @@ def drawQuotientGraphs(graph, pathwaysExpression, timestamps):
         quotientGraphName = f'tp{t+1} quotient graph'
         qg = hg.getQuotientGraph(graph, quotientGraphName)
         setPathwayExpressionProperty(qg, pathwaysExpression)
-        customizeGraph(qg, t)
+        setTimestampExpressionProperty(qg, t)
+        customizeGraph(qg)

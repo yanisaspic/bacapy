@@ -17,17 +17,18 @@ from handle_pathways import drawPathwaySubGraphs, drawQuotientGraphs, getAllPath
 from handle_heatmap import getHeatmap, convertToDataFrame
 
 nTimestamps = 17
-reactionExpressionMethod = 'mean' # options: 'mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ'
-pathwayExpressionMethod = 'mean' # options: 'mean', 'maxStd', 'minStd', 'upDownZ'
+reactionExpressionMethod = 'normalZ' # options: 'mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ'
+pathwayExpressionMethod = 'upDownZ' # options: 'mean', 'maxStd', 'minStd', 'upDownZ'
 
 def main(graph):
     
+    wg = getWorkingGraph(graph)
+    
     # query BioCyc to get pathways and remove nodes without pathways
-    pathways = filterBiocycPathways(graph)
+    pathways = filterBiocycPathways(wg)
     print(f"{len(pathways)} pathways found.")
 
     loadGeneFiles()
-    wg = getWorkingGraph(graph)
     renameLabelsWithProperty(wg, 'id')
      
     # compute the expression score of reactions
