@@ -15,16 +15,17 @@ from aggregate_data import getDataFrameAggregate, getDataFrameNormalZAggregate
 
 def parseGeneAssociation(graph):
     """
-    Return dictionary with the BioCyc ID of an element as key, and the list of genes as value
-    The elements can be substrates, products, or reactions.
-    Only the genes with an expression are kept.
+    Return dictionary with the BioCyc ID of an element as key,
+    and the list of genes as value. The elements can be substrates,
+    products, or reactions. Only the genes with an expression are kept.
 
     Parameters
     ----------
-    graph : objet tlp.graph()
+    graph: tlp.Graph()
 
-    ----------
-    Return : python Dictionary
+    Returns 
+    -------
+    biocycIdToGenes: dict
     """
     biocycIdToGenes = {}
     for node in graph.getNodes():
@@ -42,11 +43,12 @@ def getReactionData(biocycId, biocycIdToGenes):
 
     Parameters
     ----------
-    biocycId : str
-    BiocycIdToGenes : python Dictionary
+    biocycId: str
+    biocycIdToGenes: dict
 
-    ----------
-    Return : pandas.DataFrame
+    Returns
+    -------
+    reactionData: pandas.DataFrame
     """
     reactionData = {'level': {}, 'ratio': {}}
     for dataType in ['level', 'ratio']:
@@ -62,15 +64,19 @@ def getReactionExpression(reactionId, reactionIdToGenes, method):
 
     Parameters
     ----------
-    reactionId : str, substrate, product, or reaction' ID from BioCyc
-    reactionIdToGenes : python Dictionary, reactionId as key and genes as values
-    method : str from ['mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ']
+    reactionId: str
+        substrate, product, or reaction' ID from BioCyc
+    reactionIdToGenes: dict 
+        reactionId as key and genes as values
+    method: str
+        from ['mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ']
     
-    ----------
-    Return : pandas.DataFrame
+    Returns
+    -------
+    pandas.DataFrame
     """
     nodeData = getReactionData(reactionId, reactionIdToGenes)
-    if len(nodeData['level'])==0:    # substract or product
+    if len(nodeData['level']) == 0:    # substract or product
         return []
     if method=='normalZ':
         return getDataFrameNormalZAggregate(nodeData['level']).tolist()
@@ -84,9 +90,11 @@ def setReactionExpressionProperty(graph, reactionIdToGenes, method):
 
     Parameters
     ----------
-    graph : tlp.Graph
-    reactionIdToComponents : python Dictionary, reactionId as key and genes as values
-    method : str, from ['mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ']
+    graph: tlp.Graph
+    reactionIdToComponents: dict
+        reactionId as key and genes as values
+    method: str
+        from ['mean', 'maxStd', 'minStd', 'upDownZ', 'normalZ']
     """
     graph.getDoubleVectorProperty('expression')
     for node in graph.getNodes():
