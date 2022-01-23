@@ -19,17 +19,21 @@ def requestBiocyc(ID):
     Performs a request for an object (reaction, pathway ...)
     with its ID in BioCyc. 
     
-    Parameters:
-        ID (string): ID of the requested object
+    Parameters
+    ----------
+    ID : string
+        the id of the requested object
     
-    Returns:
-        doc (xml): The BioCyc XML text of our requested object 
-        
+    Returns
+    -------
+    doc : ElementTree.Element
+        The BioCyc XML text of our requested object 
     """
     # monitor requests 
     URL = "https://websvc.biocyc.org/getxml?ECOLI:" + ID
     response = requests.get(URL, timeout = 5)
-    print(f"{round(time.time() - start, 2)}: {ID} ({response.status_code})")
+    print(f"""{round(time.time() - start, 2)}: {ID}
+          ({response.status_code})""")
     if response.status_code == 200:
         doc = ET.fromstring(response.text)
     # in case of a temporary ban
@@ -43,12 +47,14 @@ def getPathwaysID(pathways, reaction):
     Adds the metabolic pathways associated with the reaction
     to the list of pathways. 
     
-    Parameters:
-        pathways   (list): Unique list of pathways associated
-                           to our reactions in BioCyc
-        reaction (string): ID of the reaction for which we search
-                           its pathways in BioCyc
-    
+    Parameters
+    ----------
+    pathways: list
+        the list of pathways associated to our reactions 
+        in BioCyc
+    reaction: string
+        the id of the reaction for which we search its
+        pathways in BioCyc
     """
     doc = requestBiocyc(reaction)
     for e in doc.findall(".//in-pathway/Pathway"):
@@ -63,16 +69,19 @@ def getPathways(reactions):
     Biocyc and the list of reactions to delete not found 
     in BioCyc.
     
-    Parameters:
-        reactions (list): List of reaction IDs retrieved 
-                          from our Tulip graph
+    Parameters
+    ----------
+    reactions: lists
+        the list of reaction IDs retrieved from our Tulip
+        graph
                           
-    Returns:
-        pathways  (list): Unique list of pathways associated
-                          to our reactions in BioCyc
-        to_delete (list): List of reactions to delete in our
-                          Tulip graph
-
+    Returns
+    -------
+    pathways: list
+        the list of pathways associated to our reactions
+        in BioCyc
+    to_delete: list
+        the list of reactions to delete in our Tulip graph
     """
     pathways = []
     to_delete = []
@@ -87,12 +96,15 @@ def getReactionIdsFromPathway(pathway):
     """
     Retrieves in BioCyc all reactions associated to a pathway.
     
-    Parameters:
-        pathway (string): Pathway id
+    Parameters
+    ----------
+    pathway : str
+        the pathway id
         
-    Returns:
-        reactions (list): List of associated reactions ids
-        
+    Returns
+    -------
+    reactions : list
+        the list of associated reactions ids
     """
     reactions = []
     doc = requestBiocyc(pathway)
@@ -105,13 +117,16 @@ def getPathwayIdsToReactions(pathways):
     Associate for each identified metabolic pathway the 
     reactions that are associated with it.
     
-    Parameters:
-        pathways (list): List of identified pathways
+    Parameters
+    ----------
+    pathways: list
+        the list of identified pathways
     
-    Returns:
-        data (dict): String of pathway id as key and its 
-                     associated reaction list as values
-        
+    Returns
+    -------
+    data: dict
+        string of pathway id as key and its associated
+        reaction list as values
     """
     data = {}
     for p in pathways:
@@ -124,18 +139,25 @@ def getPathwayIdsToReactions(pathways):
 
 def getNodeIdsFromGraph(graph, targetReaction):
     """
-    Returns all BioCyc ids corresponding to a substract or a reaction in the graph
+    Returns all BioCyc ids corresponding to a substract
+    or a reaction in the graph.
 
-    Parameters:
-        graph (tlp.Graph): Ecoli K12 substrates - reactions graph 
-        targetReaction (bool) : if True, returns the reactions. If False, returns the substracts.
+    Parameters
+    ----------
+    graph: tlp.Graph 
+        the Ecoli K12 substrates - reactions graph 
+    targetReaction: bool
+        if True, returns the reactions, 
+        if False, returns the substracts
     
-    Returns:
-        substracts (list): List of associated ids
+    Returns
+    -------
+    substracts: list
+        the list of associated ids
     """
-    ids=graph.getStringProperty('id')
-    isReaction=graph.getBooleanProperty('reaction')
-    targetIds=[]
+    ids = graph.getStringProperty('id')
+    isReaction = graph.getBooleanProperty('reaction')
+    targetIds = []
     for n in graph.getNodes():
         if isReaction[n] == targetReaction:
             targetIds.append(ids[n])
@@ -146,36 +168,52 @@ def removeNotBiocycReactions(graph, notBR):
     Deletes all reactions not found on BioCyc. Substrates are 
     also deleted if they are not used by found reactions.
     
-    Parameters:
-        graph (tlp.Graph): Ecoli K12 substrates - reactions graph 
-        notBR (list): List of reaction IDs not found on BioCyc
-    
+    Parameters
+    ----------
+    graph: tlp.Graph 
+        the Ecoli K12 substrates - reactions graph 
+    notBR: list 
+        the list of reaction IDs not found on BioCyc
     """
-    substracts = getNodeIdsFromGraph(graph, targetReaction=False)
-    biocycReactionNodes = hg.filterNodesWithIds(graph, notBR + substracts, excluded = True)
-    nodeIdsToKeep = set(hg.getIdsFromNodes(graph, biocycReactionNodes))
+    substracts = getNodeIdsFromGraph(graph,
+                                     targetReaction = False)
+    biocycReactionNodes = hg.filterNodesWithIds(graph,
+                                                notBR + substracts,
+                                                excluded = True)
+    nodeIdsToKeep = set(hg.getIdsFromNodes(graph,
+                                           biocycReactionNodes))
     for n in biocycReactionNodes:
         neighborNodes = hg.getNeighborNodes(graph, n)
-        nodeIdsToKeep.update(hg.getIdsFromNodes(graph, neighborNodes))
-    hg.deleteNodes(graph, hg.filterNodesWithIds(graph, nodeIdsToKeep, excluded = True))
+        nodeIdsToKeep.update(hg.getIdsFromNodes(graph,
+                                                neighborNodes))
+    hg.deleteNodes(graph, hg.filterNodesWithIds(graph,
+                                                nodeIdsToKeep,
+                                                excluded = True))
 
 def filterBiocycPathways(graph):
     """
-    Removes the reactions not found on BioCyc and returns a dict of pathways as keys
-    and their reactions as values.
+    Removes the reactions not found on BioCyc and returns
+    a dict of pathways as keys and their reactions as values.
     
-    Parameters:
-        graph (tlp.Graph): Ecoli K12 substrates - reactions graph 
+    Parameters
+    ----------
+    graph: tlp.Graph
+        the Ecoli K12 substrates - reactions graph 
         
-    Returns:
-        data (list): dict of pathways (keys) and their associated reactions ids (values)
+    Returns
+    -------
+    data: dict
+        dictionnary of pathways (keys) and their associated
+        reactions ids (values)
     """
     # measure query time
     global start
     start = time.time()
-    reactions = getNodeIdsFromGraph(graph, targetReaction=True)
+    reactions = getNodeIdsFromGraph(graph,
+                                    targetReaction = True)
     pathways, reactions_to_del = getPathways(reactions)
-    print(f'{len(reactions_to_del)} reactions not found on BioCyc and deleted.')
+    print(f'''{len(reactions_to_del)} reactions not
+          found on BioCyc and deleted.''')
     data = getPathwayIdsToReactions(pathways)
     removeNotBiocycReactions(graph, reactions_to_del)
     return data
