@@ -17,13 +17,20 @@ forceLayoutMethod = 'FM^3 (OGDF)'
 
 def getPathwayNodes(graph, pathwayId, pathwayIdsToReactions):
     """
-    Return list of nodes involved in a pathway (reaction, substrate, and product).
+    Return list of nodes involved in a pathway 
+    (reaction, substrate, and product).
     
     Parameters
     ----------
-    graph : tlp.Graph
-    pathwayId : str, BioCyc ID of a pathway
-    pathwayIdsToReactions : python Dictionary, pathwayId as key and reactions as values
+    graph: tlp.Graph
+    pathwayId: str
+        the BioCyc ID of a pathway
+    pathwayIdsToReactions: dict
+        pathwayId as key and reactions as values
+        
+    Returns
+    -------
+        pathwayNodes: list
     """
     reactionNodes = hg.filterNodesWithIds(graph, pathwayIdsToReactions[pathwayId])
     pathwayNodes = set(reactionNodes)
@@ -36,24 +43,27 @@ def drawPathwaySubGraphs(graph, pathwayIdsToReactions):
     
     Parameters
     ----------
-    graph : tlp.Graph
-    pathwayIdsToReactions : python Dictionary, pathwayId as key and reactions as values
+    graph: tlp.Graph
+    pathwayIdsToReactions: dict
+        pathwayId as key and reactions as values
     """
     for pathwayId in pathwayIdsToReactions:
         pathwayNodes = getPathwayNodes(graph, pathwayId, pathwayIdsToReactions)
-        graph.inducedSubGraph(pathwayNodes, name=pathwayId)
+        graph.inducedSubGraph(pathwayNodes, name = pathwayId)
 
 def getOnePathwayExpression(pathwaySubGraph, method):
     """
-    Return aggregated expression of a pathway from expression values of its reactions
+    Return aggregated expression of a pathway from
+    expression values of its reactions
     
     Parameters
     ----------
     pathwaySubGraph : tlp.Graph
     method : string, from ['mean', 'maxStd', 'minStd', 'upDownZ']
 
-    ----------
-    return : list
+    Returns
+    -------
+    list
     """
     reactionsExpression = hg.getExpression(pathwaySubGraph)
     # erreur avec minStd et maxStd quand les expressions de reactions n'ont pas ete mesurees
@@ -63,17 +73,20 @@ def getOnePathwayExpression(pathwaySubGraph, method):
 
 def getAllPathwaysExpression(graph, method):
     """
-    Return Dictionary with pathway as keys and list of aggregated expressions as values
-    (computed from expression of involved reactions).
-    The expression is computed from sub-graphs each corresponding to independent pathways
+    Return Dictionary with pathway as keys and list of 
+    aggregated expressions as values(computed from expression
+    of involved reactions). The expression is computed from
+    sub-graphs each corresponding to independent pathways
     
     Parameters
     ----------
     graph : tlp.Graph
-    method : str, from ['mean', 'maxStd', 'minStd', 'upDownZ']
+    method : str
+        from ['mean', 'maxStd', 'minStd', 'upDownZ']
 
-    ----------
-    Return : python Dictionary
+    Returns
+    -------
+    pathwayIdToExpression: dict
     """
     pathwayIdToExpression = {}
     for pathwaySubGraph in graph.getSubGraphs():
@@ -85,12 +98,14 @@ def getAllPathwaysExpression(graph, method):
 def setPathwayExpressionProperty(quotientGraph, pathwaysExpression):
     """
     Add or Update the Expression Property of graph.
-    With the aggregated expression values of BioCyc Elements (reaction, substrate, or product)
+    With the aggregated expression values of BioCyc Elements
+    (reaction, substrate, or product)
    
     Parameters
     ----------
     quotientGraph : tlp.Graph
-    pathwaysExpression : python Dictionary, pathwayId as key and aggregated expression as value
+    pathwaysExpression : dict 
+        pathwayId as key and aggregated expression as value
     """
     quotientGraph.getDoubleVectorProperty('expression')
     for n in quotientGraph.getNodes():
@@ -99,7 +114,8 @@ def setPathwayExpressionProperty(quotientGraph, pathwaysExpression):
 
 def customizeGraph(graph, timestamp):
     """
-    Adapt size and color of graph' nodes depending on expression level at timestamp
+    Adapt size and color of graph' nodes depending on expression
+    level at timestamp
 
     Parameters
     ----------
@@ -121,10 +137,11 @@ def customizeGraph(graph, timestamp):
     graph.applyLayoutAlgorithm(forceLayoutMethod)
 
 def setTimestampExpressionProperty(quotientGraph, timestamp):
-    """Adds or updates the tpExpression property of a graph.
+    """
+    Adds or updates the tpExpression property of a graph.
     It corresponds to the expression at a given timestamp.
 
-    Parametres
+    Parameters
     ----------
     quotientGraph : objet tlp.Graph
     timestamp : int
@@ -143,7 +160,8 @@ def drawQuotientGraphs(graph, pathwaysExpression, timestamps):
     Parameters
     ----------
     graph : tlp.Graph
-    timestamps : list of int
+    timestamps : list
+        the list of timestamps (int)
     """
     for t in timestamps:
         quotientGraphName = f'tp{t+1} quotient graph'
