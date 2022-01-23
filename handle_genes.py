@@ -16,8 +16,10 @@ levelsFilename = "ecoliK12_levels.csv"
 ratiosFilename = "ecoliK12_ratio.csv"
 
 def loadGeneFiles():
-    """Charge 3 fichiers : les locus, leur niveau d'expression et leur expression differentielle."""
-    # genes, levels et ratios directement appeles par d'autres fonctions : utiliser global
+    """
+    Load 3 Files : the locus, their expression levels, and their differential expression
+    """
+    # genes, levels and ratios are directly called by other functions : use global
     global genes, levels, ratios
     genes = pd.read_csv(genesFilename, sep=';')
     levels = pd.read_csv(levelsFilename, sep=';')
@@ -25,23 +27,28 @@ def loadGeneFiles():
     genes = genes[genes['locus'].isin(levels['locus'])]
 
 def getGeneLocus(geneName):
-    """Renvoie le locus correspondant a un gene."""
+    """Return the locus corresponding to a gene."""
     return genes.loc[genes['gene name']==geneName, 'locus'].values[0]
 def getLocusLevel(locus):
-    """Renvoie le niveau d'expression d'un locus."""
+    """Return the expression level of a locus."""
     return levels.loc[levels['locus']==locus].drop('locus', axis=1).to_numpy()
 def getLocusRatio(locus):
-    """Renvoie l'expression differentielle d'un locus."""
+    """Return the differential expression of a locus."""
     return ratios.loc[ratios['locus']==locus].drop('locus', axis=1).to_numpy()
 def getLocusData(locus):
-    """Renvoie le niveau d'expression et l'expression differentielle d'un locus."""
+    """Return the expression level and the differential expression of a locus."""
     return {'level': getLocusLevel(locus), 'ratio': getLocusRatio(locus)}
 def getGeneData(geneName):
-    """Renvoie le niveau d'expression et l'expression differentielle d'un gene."""
+    """Return the expression level and the differential expression of a gene."""
     return getLocusData( getGeneLocus(geneName) )
 
 def isGeneWithData(geneName):
-    """Verifie si l'expression d'un gene a ete mesuree."""
+    """ 
+    Check if the expression of a gene was measured.
+    
+    -------
+    Return : Boolean
+    """
     try:
         getGeneData(geneName)
         return True
