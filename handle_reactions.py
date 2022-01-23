@@ -1,5 +1,5 @@
 """
-Librairie pour interagir avec les elements metaboliques micro (reaction, substrat ou produit)
+Librairie to interact with reactions-level data.
 
 @ ASLOUDJ Yanis
 @ COLAJANNI Antonin
