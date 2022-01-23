@@ -1,5 +1,5 @@
 """
-Librairie to interact with reactions-level data.
+Library to interact with reactions-level data.
 
 @ ASLOUDJ Yanis
 @ COLAJANNI Antonin
