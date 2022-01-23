@@ -17,12 +17,20 @@ import scipy.cluster.hierarchy as spch
 
 def convertToDataFrame(pathwaysExpression, expectedSize):
     """
-    Convert the pathways and expression values dictionary into a dataFrame.
+    Convert the pathways and expression values dictionary
+    into a dataFrame.
     
     Parameters
     ----------
-    pathwaysExpression : dict associating a pathwayId (key) to its aggregated expression (value)
-    expectedSize :
+    pathwaysExpression: dict
+        dictionnary associating a pathwayId (key) to its
+        aggregated expression (value)
+    expectedSize: int
+        corresponding to the number of time stamp
+    
+    Returns
+    -------
+    df: pandas.DataFrame
     """
     # fills with NA to call pd.DataFrame.from_records()
     for pathway, expression in pathwaysExpression.items():
@@ -32,21 +40,24 @@ def convertToDataFrame(pathwaysExpression, expectedSize):
             pathwaysExpression[pathway] = expression
     dataFrame =  pd.DataFrame.from_records(pathwaysExpression).T
     dataFrame.columns = [f'tp {t+1}' for t in range(expectedSize)]
-    return dataFrame.dropna().astype("float64")
+    df = dataFrame.dropna().astype("float64") 
+    return df
 
 def getNodes(graph, nRows, nCols):
     """
-    Creates a dictionary of rows*cols nodes.
-    The nodes are indexed by their row and column respectively.
+    Creates a dictionary of rows*cols nodes. The nodes are 
+    indexed by their row and column respectively.
     
     Parameters
     ----------
-    graph : tlp.Graph
-    nRows : int 
-    nCols : int
+    graph: tlp.Graph
+    nRows: int 
+    nCols: int
     
-    ----------
-    Return : dictionary
+    Returns
+    -------
+    nodes: dict
+        indexed nodes
     """
     nodes = {}
     for i in range(nRows) : 
@@ -62,8 +73,9 @@ def getGridMap(graph, nodes):
     
     Parameters
     ----------
-    nodes : dict of nodes
-    graph : tlp.Graph
+    graph: tlp.Graph
+    nodes: dict
+        indexed nodes
     """
     graph['viewShape'].setAllNodeValue(0)
     graph['viewSize'].setAllNodeValue( (0.95, 1, 0) )
@@ -77,10 +89,14 @@ def addDoubleProperty(graph, dataFrame, nodes, propertyName) :
     
     Parameters
     ----------
-    gr : tlp.Graph
-    dataFrame : pandas.DataFrame with nRows and nCols
-    propertyName : str, name of the created property
-    nodes : dict of nodes with nRows keys, and nCols keys for each row
+    graph: tlp.Graph
+    dataFrame: pandas.DataFrame 
+        with nRows and nCols
+    propertyName: str
+        name of the created property
+    nodes: dict
+        the dict of nodes with nRows keys, and
+        nCols keys for each row
     """
     graph.getDoubleProperty(propertyName)
     for iRow in nodes.keys():
@@ -91,12 +107,14 @@ def addDoubleProperty(graph, dataFrame, nodes, propertyName) :
 
 def colorNodes(graph, propertyName):
     """
-    Colorize a graph's nodes according to the property values indicated.
+    Colorize a graph's nodes according to the property
+    values indicated.
 
     Parameters
     ----------
-    graph : tlp.Graph
-    propertyName : name of the property used for the nodes color mapping
+    graph: tlp.Graph
+    propertyName: str
+        name of the property used for the nodes color mapping
     """
     params = tlp.getDefaultPluginParameters("Color Mapping", graph)
     params['property'] = graph[propertyName]
@@ -110,19 +128,20 @@ def addScale(graph, dataFrame, propertyName):
     
     Parametres
     ----------
-    graph : tlp.Graph
-    dataFrame : pandas.DataFrame
-    propertyName : name of the property used for the nodes color mapping
+    graph: tlp.Graph
+    dataFrame: pandas.DataFrame
+    propertyName: str 
+        name of the property used for the nodes color mapping
     """    
     globalMax = int(dataFrame.max().max() * 10)
     globalMin = int(dataFrame.min().min() * 10)
     cols = dataFrame.shape[1]
 
-    for i in range(globalMin, globalMax+1, 10):        
+    for i in range(globalMin, globalMax + 1, 10):        
         node = graph.addNode()
-        graph['viewLayout'][node] = (cols+2, (i-40)/10, 0)
-        graph[propertyName][node] = i/10
-        graph['viewLabel'][node] = str(i/10)
+        graph['viewLayout'][node] = (cols + 2, (i - 40) / 10, 0)
+        graph[propertyName][node] = i / 10
+        graph['viewLabel'][node] = str(i / 10)
         graph['viewLabelPosition'][node] = tlp.LabelPosition.Left
         graph['viewFontSize'][node] = 14
 
@@ -133,8 +152,13 @@ def addFeature(graph, feature):
 
     Parameters
     ----------
-    graph : tlp.Graph
-    feature : str, the name of a header or an index of the heatmap
+    graph: tlp.Graph
+    feature: 
+        str the name of a header or an index of the heatmap
+        
+    Returns
+    -------
+    node: tlp.Node
     """
     node = graph.addNode()
     graph['viewLabel'][node] = feature
@@ -148,9 +172,11 @@ def addHeader(graph, feature, iCol):
 
     Parameters
     ----------
-    graph : tlp.Graph
-    feature : str, the name of a header for the heatmap
-    iCol : int, the number of the corresponding column
+    graph: tlp.Graph
+    feature: str
+        the name of a header for the heatmap
+    iCol: int
+        the number of the corresponding column
     """
     node = addFeature(graph, feature)
     graph['viewLayout'][node] = (iCol, 1, 0)
@@ -164,9 +190,11 @@ def addIndex(graph, feature, iRow):
 
     Parameters
     ----------
-    graph : tlp.Graph
-    feature : str, the name of an index for the heatmap
-    iRow : int, the number of the corresponding row
+    graph: tlp.Graph
+    feature: str
+        the name of an index for the heatmap
+    iRow: int
+        the number of the corresponding row
     """
     node = addFeature(graph, feature)
     graph['viewLayout'][node] = (-1, -iRow, 0)
@@ -175,12 +203,13 @@ def addIndex(graph, feature, iRow):
 
 def addHeadersAndIndexes(graph, dataFrame):
     """
-    Adds the names of the rows and the columns of the dataFrame to the heatmap.
+    Adds the names of the rows and the columns of
+    the dataFrame to the heatmap.
 
     Parameters
     ----------
-    graph : tlp.Graph
-    df : pandas.DataFrame
+    graph: tlp.Graph
+    dataFrame: pandas.DataFrame
     """
     headers, indexes = dataFrame.columns, dataFrame.index
     for iCol in range(len(headers)):
@@ -207,34 +236,39 @@ def addHeadersAndIndexes(graph, dataFrame):
     
 def clusterizeDataFrame(dataFrame):
     """
-    Clusterize a dataFrame using correlation and distance calculations.
+    Clusterize a dataFrame using correlation and
+    distance calculations.
     
     Parameters
     ----------
-    dataFrames : pandas.DataFrame
-    
-    ----------
-    Return : pandas.DataFrame
+    dataFrames: pandas.DataFrame
+
+    Returns
+    -------
+    pandas.DataFrame
     """
     correlationMatrix = dataFrame.T.corr()
     pdist = spch.distance.pdist(correlationMatrix)
-    linkage = spch.linkage(pdist, method='ward')
+    linkage = spch.linkage(pdist, method = 'ward')
     idx = spch.fcluster(linkage, 0.5 * pdist.max(), 'distance')
     dataFrame['cluster'] = idx
-    clusterizedDataFrame = dataFrame.sort_values(by='cluster')
-    return clusterizedDataFrame.drop(columns='cluster', axis=1)
+    clusterizedDataFrame = dataFrame.sort_values(by = 'cluster')
+    return clusterizedDataFrame.drop(columns = 'cluster', axis = 1)
 
 
 def drawHeatmap(graph, dataFrame, propertyName, clusterize) :
     """
-    Displays a heatmap using expression values stored in a dataFrame.
+    Displays a heatmap using expression values stored
+    in a dataFrame.
     
     Parameters
     ----------
-    graph : tlp.Graph
-    dataFrame : pandas.DataFrame
-    propertyName : name of the property used for the nodes color mapping
-    clusterize : bool, if True the heatmap rows are clusterized
+    graph: tlp.Graph
+    dataFrame: pandas.DataFrame
+    propertyName: str
+        name of the property used for the nodes color mapping
+    clusterize: bool
+        if True the heatmap rows are clusterized
     """
     nodes = getNodes(graph, *dataFrame.shape)
     if clusterize :
@@ -246,18 +280,21 @@ def drawHeatmap(graph, dataFrame, propertyName, clusterize) :
     colorNodes(graph, propertyName)
     addHeadersAndIndexes(graph, dataFrame)
     
-def getHeatmap(dataFrame, propertyName="expression", clusterize=True):
+def getHeatmap(dataFrame, propertyName = "expression", clusterize = True):
     """
-    Creates a new graph and displays a heatmap using expression values stored in a dataFrame.
+    Creates a new graph and displays a heatmap using expression
+    values stored in a dataFrame.
     
     Parameters
     ----------
-    dataFrame : pandas.DataFrame
-    propertyName : name of the property used for the nodes color mapping
-    clusterize : bool, if True the heatmap rows are clusterized
+    dataFrame: pandas.DataFrame
+    propertyName: str
+        name of the property used for the nodes color mapping
+    clusterize: bool
+        if True the heatmap rows are clusterized
     """
     heatmapGraph = tlp.newGraph()
     heatmapGraph.setName('heatmap')
     drawHeatmap(heatmapGraph, dataFrame, propertyName, clusterize)
     defaultProperties = tlp.DataSet()
-    tlpgui.createView("Node Link Diagram view", heatmapGraph, defaultProperties, show=True)
+    tlpgui.createView("Node Link Diagram view", heatmapGraph, defaultProperties, show = True)
