@@ -15,19 +15,22 @@ from scipy.stats import zscore
 
 def getDataFrameRowByStd(dataFrame, ascend):
     """
-    Return a dataframe row depending on its standard deviation' value.
+    Return a dataframe row depending on its standard
+    deviation' value.
 
     Parameters
     ----------
     dataFrame : pandas.DataFrame
     ascend : Boolean
 
-    ----------
-    Returns : pandas.DataFrame
+    Returns
+    -------
+    pandas.DataFrame
     """
     # Prevent error message if empty dataframe
-    selectedRow = dataFrame.std(axis=1).sort_values(ascending=ascend).index[0]
+    selectedRow = dataFrame.std(axis = 1).sort_values(ascending = ascend).index[0]
     return dataFrame.loc[selectedRow]
+
 def getDataFrameMinStdRow(dataFrame):
     """
     Return Dataframe row with smallest standard deviation
@@ -36,10 +39,12 @@ def getDataFrameMinStdRow(dataFrame):
     ----------
     dataFrame : pandas.DataFrame
 
-    ----------
-    Returns : pandas.DataFrame
+    Returns
+    -------
+    pandas.DataFrame
     """
     return getDataFrameRowByStd(dataFrame, True)
+
 def getDataFrameMaxStdRow(dataFrame):
     """
     Return Dataframe row with largest standard deviation
@@ -48,29 +53,33 @@ def getDataFrameMaxStdRow(dataFrame):
     ----------
     dataFrame : pandas.DataFrame
 
-    ----------
-    Returns : pandas.DataFrame
+    Returns
+    -------
+    pandas.DataFrame
     """
     return getDataFrameRowByStd(dataFrame, False)
 
 def countPosAndNeg(series):
     """
-    Return the number of positive and negative values in a pandas Series.
+    Return the number of positive and negative values
+    in a pandas Series.
     
     Parameters
     ----------
     series : pandas.Series
 
-    ----------
-    Returns : tuple
+    Returns
+    -------
+    tuple
     """
-    return len(series[series>0]), len(series[series<0])
+    return len(series[series > 0]), len(series[series < 0])
 def getUpDownZScore(nUp, nDown):
     """
     Return a Z-score centered around 0.
     
     @ Marini, F., Ludt, A., Linke, J. et al. 
-    GeneTonic: an R/Bioconductor package for streamlining the interpretation of RNA-seq data. 
+    GeneTonic: an R/Bioconductor package for streamlining the
+    interpretation of RNA-seq data. 
     BMC Bioinformatics 22, 610 (2021). 
     https://doi.org/10.1186/s12859-021-04461-5
     
@@ -79,23 +88,27 @@ def getUpDownZScore(nUp, nDown):
     nUp : double
     nDown : double
 
-    ----------
-    Returns : double
+    Returns
+    -------
+    double
     """
     # ZeroDivisionError si nUp==0 et nDown==0 => utilise max(1).
-    return (nUp-nDown) / math.sqrt(max(1, nUp+nDown))
+    return (nUp-nDown) / math.sqrt(max(1, nUp + nDown))
+
 def getDataFrameUpDownZAggregate(dataFrame):
     """
     Compute Z-score for each column of a Dataframe such as :
     z = (nUp - nDown) / sqrt(nUp + nDown)
-    Where nUp and nDown are the numbers of cells strictly positives and negatives of the column.
+    Where nUp and nDown are the numbers of cells strictly
+    positives and negatives of the column.
     
     Parameters
     ----------
     dataFrame : pandas.DataFrame
 
-    ----------
-    Returns : pandas.DataFrame
+    Returns
+    -------
+    pandas.DataFrame
     """
     return dataFrame.apply(lambda col: getUpDownZScore(*countPosAndNeg(col)))
 
@@ -107,10 +120,12 @@ def getDataFrameMeanAggregate(dataFrame):
     ----------
     dataFrame : pandas.DataFrame
 
-    ----------
-    Returns : Series or DataFrame (if level specified)
+    Returns
+    -------
+    Series or DataFrame (if level specified)
     """
     return dataFrame.mean()
+
 def getDataFrameNormalZAggregate(dataFrame):
     """
     Apply Z-score normalisation for each row of dataFrame such as :
@@ -121,10 +136,11 @@ def getDataFrameNormalZAggregate(dataFrame):
     ----------
     dataFrame : pandas.DataFrame
 
-    ----------
-    Returns : Series or DataFrame (if level specified)
+    Returns
+    -------
+    Series or DataFrame (if level specified)
     """
-    return getDataFrameMeanAggregate(zscore(dataFrame, axis=1))
+    return getDataFrameMeanAggregate(zscore(dataFrame, axis = 1))
 
 def getDataFrameAggregate(dataFrame, method):
     """
@@ -133,6 +149,10 @@ def getDataFrameAggregate(dataFrame, method):
     Parameters
     ----------
     dataFrame : pandas.DataFrame
+    
+    Returns
+    -------
+    apply a an algortihm
     """
     algorithms = {
         'mean': getDataFrameMeanAggregate,
