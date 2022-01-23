@@ -220,6 +220,7 @@ def filterNodesWithIds(graph, nodeIds, excluded = False):
         list of excluded or included nodes id (str)
     """
     nodesIdList = splitNodesWithIds(graph, nodeIds)[excluded]
+    return nodesIdList
 
 def getQuotientGraph(graph, quotientGraphName = 'quotient graph'):
     """
