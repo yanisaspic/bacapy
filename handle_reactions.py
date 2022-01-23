@@ -13,16 +13,6 @@ import pandas as pd
 from handle_genes import isGeneWithData, getGeneData
 from aggregate_data import getDataFrameAggregate, getDataFrameNormalZAggregate
 
-def getReactionIds(graph):
-    """Renvoie l'ensemble des ids BioCyc correspondant a une reaction."""
-    ids=graph.getStringProperty('id')
-    isReaction=graph.getBooleanProperty('reaction')
-    reactionIds=[]
-    for n in graph.getNodes():
-        if isReaction:
-            reactionIds.append(ids[n])
-    return reactionIds
-
 def parseGeneAssociation(graph):
     """
     Renvoie un dictionnaire associant l'id BioCyc d'un element (cle) a des genes (valeur).

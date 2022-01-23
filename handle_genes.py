@@ -15,7 +15,7 @@ genesFilename = "mapGeneLocus.csv"
 levelsFilename = "ecoliK12_levels.csv"
 ratiosFilename = "ecoliK12_ratio.csv"
 
-def loadDataFiles():
+def loadGeneFiles():
     """Charge 3 fichiers : les locus, leur niveau d'expression et leur expression differentielle."""
     # genes, levels et ratios directement appeles par d'autres fonctions : utiliser global
     global genes, levels, ratios

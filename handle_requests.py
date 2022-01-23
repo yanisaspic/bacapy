@@ -1,5 +1,5 @@
 """
-Librairie pour interagir avec la base de donnees BioCyc.
+This library is dedicated to BioCyc interactions.
 
 @ ASLOUDJ Yanis
 @ COLAJANNI Antonin
@@ -12,7 +12,6 @@ Librairie pour interagir avec la base de donnees BioCyc.
 import requests
 from xml.etree import ElementTree as ET
 import handle_graphs as hg
-from handle_reactions import getReactionIds
 import time
 
 def requestBiocyc(ID):
@@ -27,21 +26,21 @@ def requestBiocyc(ID):
         doc (xml): The BioCyc XML text of our requested object 
         
     """
+    # monitor requests 
     URL = "https://websvc.biocyc.org/getxml?ECOLI:" + ID
     response = requests.get(URL, timeout = 5)
+    print(f"{round(time.time() - start, 2)}: {ID} ({response.status_code})")
     if response.status_code == 200:
         doc = ET.fromstring(response.text)
     # in case of a temporary ban
     elif response.status_code == 429:
         time.sleep(60)
-        requestBiocyc(ID)
-        # response = requests.get(URL, timeout = 5)
-        # doc = ET.fromstring(response.text)
+        doc = requestBiocyc(ID)
     return doc
 
-def getPathwayID(pathways, reaction):
+def getPathwaysID(pathways, reaction):
     """
-    Adds the metabolic pathway associated with the reaction
+    Adds the metabolic pathways associated with the reaction
     to the list of pathways. 
     
     Parameters:
@@ -56,6 +55,7 @@ def getPathwayID(pathways, reaction):
         ID = e.attrib['frameid']
         if ID not in pathways:
             pathways.append(ID)
+    return pathways
    
 def getPathways(reactions):
     """
@@ -78,12 +78,12 @@ def getPathways(reactions):
     to_delete = []
     for r in reactions:
         try:
-            getPathwayID(pathways, r)      
+            pathways = getPathwaysID(pathways, r)
         except :
             to_delete.append(r)
     return pathways, to_delete
 
-def getReactionsID(pathway):
+def getReactionIdsFromPathway(pathway):
     """
     Retrieves in BioCyc all reactions associated to a pathway.
     
@@ -91,16 +91,18 @@ def getReactionsID(pathway):
         pathway (string): Pathway id
         
     Returns:
-        reactions (list): List of associated reactions
+        reactions (list): List of associated reactions ids
         
     """
+    print(f"{time.time() - start}: {pathway}")
     reactions = []
     doc = requestBiocyc(pathway)
     for e in doc.findall(".//reaction-list/Reaction"):
+        print(e.attrib['frameid'])
         reactions.append(e.attrib['frameid'])
     return reactions
 
-def getReactions(pathways):
+def getPathwayIdsToReactions(pathways):
     """
     Associate for each identified metabolic pathway the 
     reactions that are associated with it.
@@ -116,13 +118,13 @@ def getReactions(pathways):
     data = {}
     for p in pathways:
         try :
-            reactions_list = getReactionsID(data, p)
+            reactions_list = getReactionIdsFromPathway(p)
             data[p] = reactions_list
         except :
             pass
     return data
 
-def filterBiocycReactions(graph, notBR):
+def removeNotBiocycReactions(graph, notBR):
     """
     Deletes all reactions not found on BioCyc. Substrates are 
     also deleted if they are not used by found reactions.
@@ -133,16 +135,46 @@ def filterBiocycReactions(graph, notBR):
     
     """
     biocycReactionNodes = hg.filterNodesWithIds(graph, notBR, excluded = True)
-    nodeIdsToKeep = set(hg.getIdsFromNodes(biocycReactionNodes))
+    nodeIdsToKeep = set(hg.getIdsFromNodes(graph, biocycReactionNodes))
     for n in biocycReactionNodes:
         neighborNodes = hg.getNeighborNodes(graph, n)
-        nodeIdsToKeep.update(hg.getIdsFromNodes(neighborNodes))
+        nodeIdsToKeep.update(hg.getIdsFromNodes(graph, neighborNodes))
     hg.deleteNodes(graph, hg.filterNodesWithIds(graph, nodeIdsToKeep, excluded = True))
 
-def mainBioCyc(graph):
-    reactions = getReactionIds(graph)
-    pathways, to_del = getPathways(reactions)
-    data = getReactions(pathways)
-    filterBiocycReactions(graph, to_del)
-    return data
+def getReactionIdsFromGraph(graph):
+    """
+    Returns all BioCyc ids corresponding to a reaction in the graph.
     
+    Parameters:
+        graph (tlp.Graph): Ecoli K12 substrates - reactions graph 
+    
+    Returns:
+        reactions (list): List of associated reactions ids
+    """
+    ids=graph.getStringProperty('id')
+    isReaction=graph.getBooleanProperty('reaction')
+    reactions=[]
+    for n in graph.getNodes():
+        if isReaction[n]:
+            reactions.append(ids[n])
+    return reactions
+
+def filterBiocycPathways(graph):
+    """
+    Removes the reactions not found on BioCyc and returns a dict of pathways as keys
+    and their reactions as values.
+    
+    Parameters:
+        graph (tlp.Graph): Ecoli K12 substrates - reactions graph 
+        
+    Returns:
+        data (list): dict of pathways (keys) and their associated reactions ids (values)
+    """
+    # measure query time
+    global start
+    start = time.time()
+    reactions = getReactionIdsFromGraph(graph)
+    pathways, reactions_to_del = getPathways(reactions)
+    data = getPathwayIdsToReactions(pathways)
+    removeNotBiocycReactions(graph, reactions_to_del)
+    return data

@@ -15,6 +15,7 @@ from scipy.stats import zscore
 
 def getDataFrameRowByStd(dataFrame, ascend):
     """Renvoie la ligne d'un dataframe d'apres sa valeur d'ecart-type."""
+    # filler pour empecher une erreur si le dataframe est vide.
     selectedRow = dataFrame.std(axis=1).sort_values(ascending=ascend).index[0]
     return dataFrame.loc[selectedRow]
 def getDataFrameMinStdRow(dataFrame):

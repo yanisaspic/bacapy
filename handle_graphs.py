@@ -1,5 +1,5 @@
 """
-Librairie pour la gestion des graphes Tulip.
+This library is dedicated to miscellaneous Tulip graph functions.
 
 @ ASLOUDJ Yanis
 @ COLAJANNI Antonin
@@ -10,6 +10,14 @@ Librairie pour la gestion des graphes Tulip.
 """
 
 from tulip import tlp
+import pandas as pd
+
+def getColorScale():
+    colorScale = tlp.ColorScale([])
+    colorScale.setColorAtPos(-1.0, tlp.Color.Blue)
+    colorScale.setColorAtPos(0.0, tlp.Color.White)
+    colorScale.setColorAtPos(1.0, tlp.Color.Red)
+    return colorScale
 
 def getRootGraph():
     for graph in tlp.getRootGraphs():
@@ -77,7 +85,22 @@ def getQuotientGraph(graph, quotientGraphName='quotient graph'):
     """Construit un graphe quotient depuis un graphe avec des sous-graphes."""
     params = tlp.getDefaultPluginParameters("Quotient Clustering", graph)
     params["use name of subgraph"] = True
-    params["layout quotient graph(s)"] = True
+    #params["layout quotient graph(s)"] = True
     graph.applyAlgorithm("Quotient Clustering", params)
     quotientGraphDefaultName = 'quotient of ' + graph.getAttribute('name')
     renameSubGraph(getRootGraph(), quotientGraphDefaultName, quotientGraphName)
+    return getRootGraph().getSubGraph(quotientGraphName)
+    
+def getExpression(graph):
+    """
+    Renvoie un dataFrame contenant les expressions des noeuds d'un graphe.
+    
+    Parametres
+    ----------
+    graph : objet tlp.Graph
+    """
+    expression = graph['expression']
+    expressionList = []
+    for n in graph.getNodes():
+        expressionList.append(expression[n])
+    return pd.DataFrame.from_records(expressionList)
