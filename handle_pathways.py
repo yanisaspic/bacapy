@@ -112,7 +112,7 @@ def setPathwayExpressionProperty(quotientGraph, pathwaysExpression):
         pathwayLabel = quotientGraph['viewLabel'][n]
         quotientGraph['expression'][n] = pathwaysExpression[pathwayLabel]
 
-def customizeGraph(graph, timestamp):
+def customizeGraph(graph):
     """
     Adapt size and color of graph' nodes depending on expression
     level at timestamp
@@ -120,18 +120,16 @@ def customizeGraph(graph, timestamp):
     Parameters
     ----------
     graph : tlp.Graph
-    timestamp : int
     """
     for n in graph.getNodes():
         pathwayExpression = graph['expression'][n]
-        # on n'affiche pas les pathways dont l'expression n'a pas ete mesuree :
+        # do not display pathways without measured expression :
         if len(pathwayExpression) == 0:
             graph['viewSize'][n] = (0, 0, 0)
         else:
-            tpExpression = pathwayExpression[timestamp]
-            size = abs(tpExpression)*400
+            tpExpression = graph['tpExpression'][n]
+            size = abs(tpExpression)*200
             graph['viewSize'][n] = (size, size, 0)
-            graph['viewColor'][n] = hg.getColorScale().getColorAtPos(tpExpression)
         graph['viewShape'][n] = tlp.NodeShape.Circle
     hg.colorNodes(graph, 'tpExpression')
     graph.applyLayoutAlgorithm(forceLayoutMethod)
