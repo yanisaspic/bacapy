@@ -29,6 +29,22 @@ def getColorScale():
     colorScale.setColorAtPos(1.0, tlp.Color.Red)
     return colorScale
 
+def colorNodes(graph, propertyName, colorScale = getColorScale()):
+    """
+    Colorizes a graph's nodes according to the property values indicated.
+
+    Parameters
+    ----------
+    graph : tlp.Graph
+    propertyName : name of the property used for the nodes color mapping
+    colorScale : tlp.ColorScale a color scale
+    """
+    params = tlp.getDefaultPluginParameters("Color Mapping", graph)
+    params['property'] = graph[propertyName]
+    params["type"] = "uniform"
+    params["color scale"] = colorScale
+    graph.applyColorAlgorithm("Color Mapping", params)
+
 def getRootGraph():
     """
     Return the root graph.
