@@ -1,5 +1,5 @@
 """
-Librairie pour aggreger des donnees quantitatives.
+Library to aggregate quantitative data.
 
 @ ASLOUDJ Yanis
 @ COLAJANNI Antonin
@@ -14,53 +14,126 @@ import pandas as pd
 from scipy.stats import zscore
 
 def getDataFrameRowByStd(dataFrame, ascend):
-    """Renvoie la ligne d'un dataframe d'apres sa valeur d'ecart-type."""
-    # filler pour empecher une erreur si le dataframe est vide.
+    """
+    Return a dataframe row depending on its standard deviation' value.
+
+    Parameters
+    ----------
+    dataFrame : pandas.DataFrame
+    ascend : Boolean
+
+    ----------
+    Returns : pandas.DataFrame
+    """
+    # Prevent error message if empty dataframe
     selectedRow = dataFrame.std(axis=1).sort_values(ascending=ascend).index[0]
     return dataFrame.loc[selectedRow]
 def getDataFrameMinStdRow(dataFrame):
-    """Renvoie la ligne d'un dataframe avec le plus petit ecart-type."""
+    """
+    Return Dataframe row with smallest standard deviation
+    
+    Parameters
+    ----------
+    dataFrame : pandas.DataFrame
+
+    ----------
+    Returns : pandas.DataFrame
+    """
     return getDataFrameRowByStd(dataFrame, True)
 def getDataFrameMaxStdRow(dataFrame):
-    """Renvoie la ligne d'un dataframe avec le plus grand ecart-type."""
+    """
+    Return Dataframe row with largest standard deviation
+    
+    Parameters
+    ----------
+    dataFrame : pandas.DataFrame
+
+    ----------
+    Returns : pandas.DataFrame
+    """
     return getDataFrameRowByStd(dataFrame, False)
 
 def countPosAndNeg(series):
-    """Renvoie le nombre de valeurs positives et negatives dans une Series pandas."""
+    """
+    Return the number of positive and negative values in a pandas Series.
+    
+    Parameters
+    ----------
+    series : pandas.Series
+
+    ----------
+    Returns : tuple
+    """
     return len(series[series>0]), len(series[series<0])
 def getUpDownZScore(nUp, nDown):
-    """Renvoie un score Z centre autour de 0.
+    """
+    Return a Z-score centered around 0.
     
     @ Marini, F., Ludt, A., Linke, J. et al. 
     GeneTonic: an R/Bioconductor package for streamlining the interpretation of RNA-seq data. 
     BMC Bioinformatics 22, 610 (2021). 
     https://doi.org/10.1186/s12859-021-04461-5
+    
+    Parameters
+    ----------
+    nUp : double
+    nDown : double
+
+    ----------
+    Returns : double
     """
     # ZeroDivisionError si nUp==0 et nDown==0 => utilise max(1).
     return (nUp-nDown) / math.sqrt(max(1, nUp+nDown))
 def getDataFrameUpDownZAggregate(dataFrame):
     """
-    Calcule un score Z pour chaque colonne d'un dataFrame tel que :
+    Compute Z-score for each column of a Dataframe such as :
     z = (nUp - nDown) / sqrt(nUp + nDown)
-    où nUp et nDown sont le nombre de cellules strictement positives et negatives d'une colonne.
+    Where nUp and nDown are the numbers of cells strictly positives and negatives of the column.
+    
+    Parameters
+    ----------
+    dataFrame : pandas.DataFrame
+
+    ----------
+    Returns : pandas.DataFrame
     """
     return dataFrame.apply(lambda col: getUpDownZScore(*countPosAndNeg(col)))
 
 def getDataFrameMeanAggregate(dataFrame):
-    """Renvoie la moyenne des lignes d'un dataframe."""
+    """
+    Return average of dataFrame' rows.
+
+    Parameters
+    ----------
+    dataFrame : pandas.DataFrame
+
+    ----------
+    Returns : Series or DataFrame (if level specified)
+    """
     return dataFrame.mean()
 def getDataFrameNormalZAggregate(dataFrame):
     """
-    Applique une normalisation Z pour chaque ligne d'un dataFrame tel que :
+    Apply Z-score normalisation for each row of dataFrame such as :
     Xnorm = (X - mu) / sigma
-    où mu et sigma sont les moyennes et ecart-types respectifs d'une ligne.
+    Where mu and sigma are the mean and std of the row.
 
-    Renvoie la moyenne des lignes normalisees.
+    Parameters
+    ----------
+    dataFrame : pandas.DataFrame
+
+    ----------
+    Returns : Series or DataFrame (if level specified)
     """
     return getDataFrameMeanAggregate(zscore(dataFrame, axis=1))
 
 def getDataFrameAggregate(dataFrame, method):
-    """Methodes d'aggregation compatibles avec des donnees de type ratio."""
+    """
+    Aggregation methods compatibles with ratio data
+
+    Parameters
+    ----------
+    dataFrame : pandas.DataFrame
+    """
     algorithms = {
         'mean': getDataFrameMeanAggregate,
         'minStd': getDataFrameMinStdRow,
