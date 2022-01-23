@@ -32,8 +32,7 @@ def requestBiocyc(ID):
     # monitor requests 
     URL = "https://websvc.biocyc.org/getxml?ECOLI:" + ID
     response = requests.get(URL, timeout = 5)
-    print(f"""{round(time.time() - start, 2)}: {ID}
-          ({response.status_code})""")
+    print(f"""{round(time.time() - start, 2)}: {ID} ({response.status_code})""")
     if response.status_code == 200:
         doc = ET.fromstring(response.text)
     # in case of a temporary ban
@@ -212,8 +211,8 @@ def filterBiocycPathways(graph):
     reactions = getNodeIdsFromGraph(graph,
                                     targetReaction = True)
     pathways, reactions_to_del = getPathways(reactions)
-    print(f'''{len(reactions_to_del)} reactions not
-          found on BioCyc and deleted.''')
     data = getPathwayIdsToReactions(pathways)
     removeNotBiocycReactions(graph, reactions_to_del)
+    print(f'''{len(reactions_to_del)} reactions not
+          found on BioCyc and deleted.''')
     return data
